@@ -1,0 +1,40 @@
+@apiUrl = http://localhost:3000/orders   
+
+#@token = {{$dotenv TOKEN}}
+###
+GET {{apiUrl}}
+
+###
+GET {{apiUrl}}/id
+#Authorization: Bearer {{token}}
+
+### Logga in på /users/login
+POST {{apiUrl}}/orders
+Content-Type: application/json
+
+{
+    
+}
+
+### skapa ny användare
+POST {{apiUrl}}
+Content-Type: application/json
+
+{
+    
+}
+
+### 
+PATCH {{apiUrl}}/id
+#Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    
+}
+
+###
+DELETE {{apiUrl}}/id
+#Authorization: Bearer {{token}}
+
+###
