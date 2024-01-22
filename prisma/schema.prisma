@@ -6,3 +6,16 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
+model Orders {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber String
+  // Add more fields as needed
+  // For example:
+  // customerName String
+  // product      String
+  // quantity     Int
+  // totalPrice   Float
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @default(now()) @map("updated_at")
+}

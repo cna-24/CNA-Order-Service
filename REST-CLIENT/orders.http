@@ -1,4 +1,4 @@
-@apiUrl = http://localhost:3000/orders   
+@apiUrl = http://localhost:3030   
 
 #@token = {{$dotenv TOKEN}}
 ###
@@ -13,16 +13,17 @@ POST {{apiUrl}}/orders
 Content-Type: application/json
 
 {
-    
+    "orderNumber": "test"
 }
 
 ### skapa ny användare
-POST {{apiUrl}}
+POST {{apiUrl}}/orders
 Content-Type: application/json
 
 {
-    
+    "orderNumber": "test"
 }
+
 
 ### 
 PATCH {{apiUrl}}/id
