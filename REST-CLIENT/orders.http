@@ -1,41 +1,33 @@
 @apiUrl = http://localhost:3030   
 
 #@token = {{$dotenv TOKEN}}
-###
-GET {{apiUrl}}
-
-###
-GET {{apiUrl}}/id
+### GET ALL
+GET {{apiUrl}}/orders/
+### GET BY ID
+GET {{apiUrl}}/orders/65c34806d7ee2f95f3f61ccd
 #Authorization: Bearer {{token}}
 
-### Logga in på /users/login
+### NEW ORDER
 POST {{apiUrl}}/orders
 Content-Type: application/json
 
 {
-    "orderNumber": "test"
+    "orderNumber": "delete me"
 }
 
-### skapa ny användare
-POST {{apiUrl}}/orders
+### PATCH ORDER
+
+PATCH {{apiUrl}}/orders/65c345d944e759f300d08e22
 Content-Type: application/json
-
-{
-    "orderNumber": "test"
-}
-
-
-### 
-PATCH {{apiUrl}}/id
 #Authorization: Bearer {{token}}
-Content-Type: application/json
 
 {
-    
+    "orderNumber": "new reee numba"
 }
 
-###
-DELETE {{apiUrl}}/id
+### DELETE ORDER
+
+DELETE {{apiUrl}}/orders/65ae3256846d9436453ce80b
 #Authorization: Bearer {{token}}
 
 ###
