@@ -1,31 +1,30 @@
 
 const jwt = require('jsonwebtoken')
-require('dotenv').config() 
+require('dotenv').config()
 
 module.exports = (req, res, next) => {
     try {
+        const authHeader = req.headers['authorization'];
+        if (!authHeader) {
+            throw new Error('No Authorization header found');
+        }
 
-        
-        const token = req.headers['authorization'].split(' ')[1]
-        
-        
-        const authUser = jwt.verify(token, process.env.JWT_SECRET)
+        const token = authHeader.split(' ')[1];
+        if (!token) {
+            throw new Error('Bearer token not found');
+        }
 
-        
-        req.authUser = authUser
-
-      
-
-        next()
+        const authUser = jwt.verify(token, process.env.JWT_SECRET);
+        req.authUser = authUser;
+        next();
 
     } catch (error) {
-        console.log("JWT error: ", error.message)
+        console.log("JWT error: ", error.message);
         res.status(401).send({
             msg: "Authorization failed",
             error: error.message
-        })
-
+        });
     }
+};
 
-}
 
