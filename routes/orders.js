@@ -66,23 +66,39 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
+    const { orderNumber, customerid, product, quantity, price } = req.body;
 
-    const { orderNumber } = req.body;
-
-    if (!orderNumber) {
-      return res.status(400).json({ error: 'Order number is required.' });
+    if (!orderNumber || !customerid || !product || !quantity || !price) {
+      return res.status(400).json({ error: 'Invalid request data. Please provide order details.' });
     }
 
+    // Check if the orderNumber already exists
+    const existingOrder = await prisma.orders.findUnique({
+      where: {
+        orderNumber,
+      },
+    });
+
+    if (existingOrder) {
+      return res.status(400).json({ error: 'Order with the same order number already exists.' });
+    }
+
+    // Create a new order
     const newOrder = await prisma.orders.create({
       data: {
         orderNumber,
+        customerid,
+        product,
+        quantity,
+        price,
+        // Additional fields as needed for your Orders model
       },
     });
 
     res.status(201).json(newOrder);
   } catch (error) {
     console.error(error);
-    res.status(400).json({ error: 'Failed to create an order' });
+    res.status(500).json({ error: 'Failed to create an order' });
   }
 });
 

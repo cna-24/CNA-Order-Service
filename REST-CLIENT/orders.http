@@ -16,7 +16,11 @@ POST {{apiUrl}}/orders
 Content-Type: application/json
 
 {
-    "orderNumber": "delete me"
+    "orderNumber": "abc123",
+    "customerId": 124,
+    "product": "kamel",
+    "quantity": 1,
+    "totalPrice": 12
 }
 
 ### PATCH ORDER

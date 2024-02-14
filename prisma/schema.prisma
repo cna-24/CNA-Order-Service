@@ -8,14 +8,14 @@ datasource db {
 }
 
 model Orders {
-  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   orderNumber String
   // Add more fields as needed
   // For example:
-  // customerName String
+  // customerId   String
   // product      String
   // quantity     Int
   // totalPrice   Float
-  createdAt DateTime    @default(now()) @map("created_at")
-  updatedAt DateTime    @default(now()) @map("updated_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
 }
