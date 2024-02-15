@@ -1,7 +1,7 @@
 @apiUrl = http://localhost:3030   
 
-#@token = {{$dotenv TOKEN}}¨
-@token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImV4YW1wbGVVc2VySWQiLCJpYXQiOjE3MDgwMDEzNTcsImV4cCI6MTcwODAwNDk1N30.zXhf5QQnQcZxqqrh6EHzuwbo6puaE1RUcpl9kfgFruY"
+@token = {{$dotenv TOKEN}}
+#@token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImV4YW1wbGVVc2VySWQiLCJpYXQiOjE3MDgwMDEzNTcsImV4cCI6MTcwODAwNDk1N30.zXhf5QQnQcZxqqrh6EHzuwbo6puaE1RUcpl9kfgFruY"
 ### GET ALL
 GET {{apiUrl}}/orders/
 ### GET BY ID
@@ -19,11 +19,11 @@ Authorization: Bearer {{token}}
 
 ###Get token from above link and add to authorization for testing purposes! Also change userId in generator...
 POST http://localhost:3030/orders
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImV4YW1wbGVVc2VySWQiLCJpYXQiOjE3MDgwMDEzNTcsImV4cCI6MTcwODAwNDk1N30.zXhf5QQnQcZxqqrh6EHzuwbo6puaE1RUcpl9kfgFruY
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "orderNumber": "1111",
+    "orderNumber": "313123",
     "product": "kameel",
     "quantity": 122453,
     "totalPrice": 12
