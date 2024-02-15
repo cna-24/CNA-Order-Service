@@ -16,7 +16,7 @@ http://localhost:3030/orders/generate-token to get ur token which you add to HTT
 
 router.get('/generate-token', (req, res) => {
   try {
-      const userId = 'exampleUserId'; // Example user ID
+      const userId = 'testUser'; // Example user ID
       const jwtSecret = process.env.JWT_SECRET; // Your secret key from environment variable
       const token = jwt.sign({ id: userId }, jwtSecret, { expiresIn: '1h' });
       res.status(200).json({ token });
@@ -80,69 +80,70 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
-// ./routes/orders.js
-
-// Define your routes and middleware here
-
-/* GET all orders not secure
-router.get('/', async (req, res) => {
-  try {
-    const orders = await prisma.orders.findMany();
-    res.json(orders);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch orders' });
-  }
-});
-*/
-/*
-router.get('/:id', async (req, res) => {
+// ID av order får man från get request ovan, kanske måste implementera get by id.
+router.patch('/:id', authenticateToken, async (req, res) => {
   try {
     const orderId = req.params.id;
-    const order = await prisma.orders.findUnique({
+    const { orderNumber, product, quantity, totalPrice } = req.body;
+
+   
+    const userId = req.authUser.id;
+
+    // Check if the order belongs to the authenticated user
+    const order = await prisma.orders.findFirst({
       where: {
-        id: orderId,
+        AND: [
+          { id: orderId },
+          { userId: userId }
+        ]
       },
     });
 
     if (!order) {
-      return res.status(404).json({ error: 'Order not found' });
+      return res.status(403).json({ error: 'Unauthorized to update this order' });
     }
 
-    res.json(order);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch the order' });
-  }
-});
-*/
-/* patch by id, not secure
-router.patch('/:id', async (req, res) => {
-  try {
-    const orderId = req.params.id;
-    const { orderNumber } = req.body;
-
+    // Update the order
     const updatedOrder = await prisma.orders.update({
       where: {
         id: orderId,
       },
       data: {
         orderNumber,
+        product,
+        quantity,
+        totalPrice,
+        updatedAt: new Date(), 
       },
     });
 
-    res.json(updatedOrder);
+    res.json({ message: 'Order updated successfully', order: updatedOrder });
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: 'Failed to update the order' });
   }
 });
-*/
 
-/* delete by id, not secure
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const orderId = req.params.id;
+    const userId = req.authUser.id;
+
+    // Check if the order belongs to the authenticated user
+    const order = await prisma.orders.findFirst({
+      where: {
+        AND: [
+          { id: orderId },
+          { userId: userId }
+        ]
+      },
+    });
+
+    if (!order) {
+      return res.status(403).json({ error: 'Unauthorized to delete this order' });
+    }
+
+    // Delete the order
     await prisma.orders.delete({
       where: {
         id: orderId,
@@ -155,5 +156,35 @@ router.delete('/:id', async (req, res) => {
     res.status(400).json({ error: 'Failed to delete the order' });
   }
 });
-*/
+
+
+router.get('/myorders/:id', authenticateToken, async (req, res) => {
+  try {
+    // Accessing the user ID from req.authUser
+    const userId = req.authUser.id;
+    const orderId = req.params.id;
+
+    const userOrder = await prisma.orders.findUnique({
+      where: {
+        id: orderId,
+        userId: userId,
+      },
+    });
+
+    if (!userOrder) {
+      return res.status(404).json({ message: 'Order not found for this user.' });
+    }
+
+    res.json(userOrder);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch order for the user.' });
+  }
+});
+
+
+
+
+
+
 module.exports = router;

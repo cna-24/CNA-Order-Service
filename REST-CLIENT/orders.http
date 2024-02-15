@@ -1,18 +1,15 @@
 @apiUrl = http://localhost:3030   
 
 @token = {{$dotenv TOKEN}}
-#@token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImV4YW1wbGVVc2VySWQiLCJpYXQiOjE3MDgwMDEzNTcsImV4cCI6MTcwODAwNDk1N30.zXhf5QQnQcZxqqrh6EHzuwbo6puaE1RUcpl9kfgFruY"
 ### GET ALL
 GET {{apiUrl}}/orders/
 ### GET BY ID
-GET {{apiUrl}}/orders/65c34806d7ee2f95f3f61ccd
-#Authorization: Bearer {{token}}
+GET {{apiUrl}}/orders/myorders/65ce1fd30b994ec7411b68d5
+Authorization: Bearer {{token}}
 
 ### GET ORDERS FOR LOGGED-IN USER
 GET {{apiUrl}}/orders/myorders
 Authorization: Bearer {{token}}
-
-### NEW ORDER
 #/* TOKEN GENERATOR FOR TESTING USER ID
 #http://localhost:3030/orders/generate-token to get ur token which you add to HTTP auth bearer
 #*/
@@ -23,25 +20,29 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "orderNumber": "313123",
-    "product": "kameel",
-    "quantity": 122453,
-    "totalPrice": 12
+  "orderNumber": "new test",
+  "product": "donny bump",
+  "quantity": 2,
+  "totalPrice": 50
 }
+
 
 ### PATCH ORDER
 
-PATCH {{apiUrl}}/orders/65c345d944e759f300d08e22
+PATCH http://localhost:3030/orders/65ce1d548a68f23529947b45
+Authorization: Bearer {{token}}
 Content-Type: application/json
-#Authorization: Bearer {{token}}
 
 {
-    "orderNumber": "new reee numba"
+  "orderNumber": "123456",
+  "product": "Updated 2",
+  "quantity": 5,
+  "totalPrice": 50.99
 }
 
 ### DELETE ORDER
 
-DELETE {{apiUrl}}/orders/65ae3256846d9436453ce80b
-#Authorization: Bearer {{token}}
+DELETE {{apiUrl}}/orders/65ce1d548a68f23529947b45
+Authorization: Bearer {{token}}
 
 ###
