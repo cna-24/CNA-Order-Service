@@ -48,20 +48,27 @@ DELETE /orders/:id
 
 ## Examples
 
+```bash
 ### GET ALL
 GET {{apiUrl}}/orders/
+```
 
+```bash
 ### GET BY ID
 GET {{apiUrl}}/orders/myorders/:id
 Authorization: Bearer {{token}}
+```
 
+```bash
 ### GET ORDERS FOR LOGGED-IN USER
 GET {{apiUrl}}/orders/myorders
 Authorization: Bearer {{token}}
 #/* TOKEN GENERATOR FOR TESTING USER ID
 #http://localhost:3030/orders/generate-token to get ur token which you add to HTTP auth bearer
 #*/
+```
 
+```bash
 ### Get token from above link and add to authorization for testing purposes! Also change userId in generator...
 POST http://localhost:3030/orders
 Authorization: Bearer {{token}}
@@ -73,7 +80,9 @@ Content-Type: application/json
   "quantity": 2,
   "totalPrice": 50
 }
+```
 
+```bash
 ### PATCH ORDER
 
 PATCH http://localhost:3030/orders/:id
@@ -86,9 +95,11 @@ Content-Type: application/json
   "quantity": 5,
   "totalPrice": 50.99
 }
+```
 
+```bash
 ### DELETE ORDER
 
 DELETE {{apiUrl}}/orders/:id
 Authorization: Bearer {{token}}
-
+```
