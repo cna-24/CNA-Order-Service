@@ -7,15 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model CNA_Orders {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  @@map("CNA-Orders")
+}
+
 model Orders {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime    @default(now()) @map("created_at")
+  userId  String?
   orderNumber String
-  // Add more fields as needed
-  // For example:
-  // customerId   String
-  // product      String
-  // quantity     Int
-  // totalPrice   Float
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @map("updated_at")
+  product     String?
+  quantity    Int?
+  totalPrice  Float?
+  updatedAt DateTime    @default(now()) @map("updated_at")
 }

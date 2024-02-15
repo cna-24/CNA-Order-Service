@@ -7,19 +7,28 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 require('dotenv').config()
 
-// ./routes/orders.js
 
-// Define your routes and middleware here
 
-router.get('/', async (req, res) => {
+
+/* TOKEN GENERATOR FOR TESTING USER ID
+http://localhost:3030/orders/generate-token to get ur token which you add to HTTP auth bearer
+*/
+
+router.get('/generate-token', (req, res) => {
   try {
-    const orders = await prisma.orders.findMany();
-    res.json(orders);
+      const userId = 'exampleUserId'; // Example user ID
+      const jwtSecret = process.env.JWT_SECRET; // Your secret key from environment variable
+      const token = jwt.sign({ id: userId }, jwtSecret, { expiresIn: '1h' });
+      res.status(200).json({ token });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch orders' });
+      console.error(error);
+      res.status(500).json({ error: 'Failed to generate token' });
   }
 });
+
+
+
+
 
 // Route for User front-end. Get 
 router.get('/myorders', authenticateToken, async (req, res) => {
@@ -44,6 +53,49 @@ router.get('/myorders', authenticateToken, async (req, res) => {
   }
 });
 
+router.post('/', authenticateToken, async (req, res) => {
+  try {
+    const { orderNumber, product, quantity, totalPrice  } = req.body;
+    const userId = req.authUser.id;
+
+    if (!orderNumber || !product || !quantity || !totalPrice ) {
+      return res.status(400).json({ error: 'Invalid request data. Please provide order details.' });
+    }
+
+    // Create a new order
+    const newOrder = await prisma.orders.create({
+      data: {
+        orderNumber: orderNumber,
+        userId: userId, 
+        product: product,
+        quantity: quantity,
+        totalPrice: totalPrice,
+      },
+    });
+
+    res.status(201).json(newOrder);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to create an order' });
+  }
+});
+
+// ./routes/orders.js
+
+// Define your routes and middleware here
+
+/* GET all orders not secure
+router.get('/', async (req, res) => {
+  try {
+    const orders = await prisma.orders.findMany();
+    res.json(orders);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch orders' });
+  }
+});
+*/
+/*
 router.get('/:id', async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -63,45 +115,8 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch the order' });
   }
 });
-
-router.post('/', async (req, res) => {
-  try {
-    const { orderNumber, customerid, product, quantity, price } = req.body;
-
-    if (!orderNumber || !customerid || !product || !quantity || !price) {
-      return res.status(400).json({ error: 'Invalid request data. Please provide order details.' });
-    }
-
-    // Check if the orderNumber already exists
-    const existingOrder = await prisma.orders.findUnique({
-      where: {
-        orderNumber,
-      },
-    });
-
-    if (existingOrder) {
-      return res.status(400).json({ error: 'Order with the same order number already exists.' });
-    }
-
-    // Create a new order
-    const newOrder = await prisma.orders.create({
-      data: {
-        orderNumber,
-        customerid,
-        product,
-        quantity,
-        price,
-        // Additional fields as needed for your Orders model
-      },
-    });
-
-    res.status(201).json(newOrder);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to create an order' });
-  }
-});
-
+*/
+/* patch by id, not secure
 router.patch('/:id', async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -122,9 +137,9 @@ router.patch('/:id', async (req, res) => {
     res.status(400).json({ error: 'Failed to update the order' });
   }
 });
+*/
 
-
-
+/* delete by id, not secure
 router.delete('/:id', async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -140,5 +155,5 @@ router.delete('/:id', async (req, res) => {
     res.status(400).json({ error: 'Failed to delete the order' });
   }
 });
-
+*/
 module.exports = router;

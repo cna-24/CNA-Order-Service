@@ -1,6 +1,7 @@
 @apiUrl = http://localhost:3030   
 
-@token = {{$dotenv TOKEN}}
+#@token = {{$dotenv TOKEN}}¨
+@token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImV4YW1wbGVVc2VySWQiLCJpYXQiOjE3MDgwMDEzNTcsImV4cCI6MTcwODAwNDk1N30.zXhf5QQnQcZxqqrh6EHzuwbo6puaE1RUcpl9kfgFruY"
 ### GET ALL
 GET {{apiUrl}}/orders/
 ### GET BY ID
@@ -12,14 +13,19 @@ GET {{apiUrl}}/orders/myorders
 Authorization: Bearer {{token}}
 
 ### NEW ORDER
-POST {{apiUrl}}/orders
+#/* TOKEN GENERATOR FOR TESTING USER ID
+#http://localhost:3030/orders/generate-token to get ur token which you add to HTTP auth bearer
+#*/
+
+###Get token from above link and add to authorization for testing purposes! Also change userId in generator...
+POST http://localhost:3030/orders
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImV4YW1wbGVVc2VySWQiLCJpYXQiOjE3MDgwMDEzNTcsImV4cCI6MTcwODAwNDk1N30.zXhf5QQnQcZxqqrh6EHzuwbo6puaE1RUcpl9kfgFruY
 Content-Type: application/json
 
 {
-    "orderNumber": "abc123",
-    "customerId": 124,
-    "product": "kamel",
-    "quantity": 1,
+    "orderNumber": "1111",
+    "product": "kameel",
+    "quantity": 122453,
     "totalPrice": 12
 }
 
