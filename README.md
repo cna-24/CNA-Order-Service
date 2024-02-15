@@ -15,23 +15,34 @@ npm start
 
 Token Generation
 To generate a token for testing, make a GET request to:
+```bash
 http://localhost:3030/orders/generate-token
+```
 
 ## Endpoints Overview
-
+```bash
 GET /orders/myorders
+```
 Get all orders for the authenticated user.
 
+```bash
 GET /orders/myorders/:id
+```
 Get a specific order for the authenticated user.
 
+```bash
 POST /orders
+```
 Create a new order for the authenticated user.
 
+```bash
 PATCH /orders/:id
+```
 Update a specific order for the authenticated user.
 
+```bash
 DELETE /orders/:id
+```
 Delete a specific order for the authenticated user.
 
 ## Examples
