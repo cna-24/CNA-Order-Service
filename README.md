@@ -11,44 +11,72 @@ cd [project-directory]
 npm install
 npm start
 ```
+## Usage
+
+Token Generation
+To generate a token for testing, make a GET request to:
+http://localhost:3030/orders/generate-token
+
 ## Endpoints Overview
 
-### Get Item
-- **Endpoint:** `/item/{id}`
-- **Method:** `GET`
-- **Description:** Retrieves details of an item by ID.
+GET /orders/myorders
+Get all orders for the authenticated user.
 
-### Add Item
-- **Endpoint:** `/item`
-- **Method:** `POST`
-- **Description:** Adds a new item to the collection.
+GET /orders/myorders/:id
+Get a specific order for the authenticated user.
 
-### Update Item
-- **Endpoint:** `/item/{id}`
-- **Method:** `PUT`
-- **Description:** Updates an existing item by ID.
+POST /orders
+Create a new order for the authenticated user.
 
-### Delete Item
-- **Endpoint:** `/item/{id}`
-- **Method:** `DELETE`
-- **Description:** Deletes an item by ID.
+PATCH /orders/:id
+Update a specific order for the authenticated user.
+
+DELETE /orders/:id
+Delete a specific order for the authenticated user.
 
 ## Examples
 
-### Get Item Example
-```bash
-GET /item/123
-Authorization: Bearer YOUR_API_KEY
-```
-### Add Item Example
-```bash
-POST /item
-Authorization: Bearer YOUR_API_KEY
+### GET ALL
+GET {{apiUrl}}/orders/
+
+### GET BY ID
+GET {{apiUrl}}/orders/myorders/:id
+Authorization: Bearer {{token}}
+
+### GET ORDERS FOR LOGGED-IN USER
+GET {{apiUrl}}/orders/myorders
+Authorization: Bearer {{token}}
+#/* TOKEN GENERATOR FOR TESTING USER ID
+#http://localhost:3030/orders/generate-token to get ur token which you add to HTTP auth bearer
+#*/
+
+### Get token from above link and add to authorization for testing purposes! Also change userId in generator...
+POST http://localhost:3030/orders
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "name": "New Item",
-  "description": "Description of the new item"
+  "orderNumber": "new test",
+  "product": "donny bump",
+  "quantity": 2,
+  "totalPrice": 50
 }
-```
+
+### PATCH ORDER
+
+PATCH http://localhost:3030/orders/:id
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "orderNumber": "123456",
+  "product": "Updated 2",
+  "quantity": 5,
+  "totalPrice": 50.99
+}
+
+### DELETE ORDER
+
+DELETE {{apiUrl}}/orders/:id
+Authorization: Bearer {{token}}
 
