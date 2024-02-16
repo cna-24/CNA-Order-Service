@@ -1,6 +1,6 @@
 # CNA-Order-Service
 Order Service API
-
+https://cna-order-service.azurewebsites.net/
 # Installation
 
 Instructions for setting up the project locally:
@@ -16,7 +16,7 @@ npm start
 Token Generation
 To generate a token for testing, make a GET request to:
 ```bash
-http://localhost:3030/orders/generate-token
+https://cna-order-service.azurewebsites.net/orders/generate-token
 ```
 
 ## Endpoints Overview
@@ -50,18 +50,18 @@ DELETE /orders/:id
 
 ```bash
 ### GET ALL
-GET {{apiUrl}}/orders/
+GET https://cna-order-service.azurewebsites.net/orders/
 ```
 
 ```bash
 ### GET BY ID
-GET {{apiUrl}}/orders/myorders/:id
+GET https://cna-order-service.azurewebsites.net/orders/myorders/:id
 Authorization: Bearer {{token}}
 ```
 
 ```bash
 ### GET ORDERS FOR LOGGED-IN USER
-GET {{apiUrl}}/orders/myorders
+GET https://cna-order-service.azurewebsites.net/orders/myorders
 Authorization: Bearer {{token}}
 #/* TOKEN GENERATOR FOR TESTING USER ID
 #http://localhost:3030/orders/generate-token to get ur token which you add to HTTP auth bearer
@@ -70,7 +70,7 @@ Authorization: Bearer {{token}}
 
 ```bash
 ### Get token from above link and add to authorization for testing purposes! Also change userId in generator...
-POST http://localhost:3030/orders
+POST https://cna-order-service.azurewebsites.net/orders
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -85,7 +85,7 @@ Content-Type: application/json
 ```bash
 ### PATCH ORDER
 
-PATCH http://localhost:3030/orders/:id
+PATCH https://cna-order-service.azurewebsites.net/orders/:id
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -100,6 +100,6 @@ Content-Type: application/json
 ```bash
 ### DELETE ORDER
 
-DELETE {{apiUrl}}/orders/:id
+DELETE https://cna-order-service.azurewebsites.net/orders/:id
 Authorization: Bearer {{token}}
 ```
