@@ -182,9 +182,44 @@ router.get('/myorders/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// New route to process an order and send an email
+router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
+  const cartId = req.params.cartId;
+  const cartServiceURL = `https://cartserviceem.azurewebsites.net/cart/${cartId}`;
+  const emailServiceURL = 'http://your-email-service-url/send_email'; // Replace with the actual email api endpoint
 
+  try {
+    // Get the cart details
+    const cartResponse = await axios.get(cartServiceURL);
+    const cartData = cartResponse.data;
 
+    // Here, transform the cartData as needed to match the Email API's expected format
+    // This is a simplified example.
+    const emailData = {
+      email_address: 'customer@example.com', // This should be dynamically set based on your application's logic
+      subject: 'Your Order Details',
+      body: `Your order with ID ${cartId} has been processed. Details: ${JSON.stringify(cartData)}`,
+    };
 
+    // Send the data to the Email API
+    // Generate a JWT for Email API authentication
+    const emailApiToken = jwt.sign({ user: 'yourUserIdentifier' }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
+    const emailResponse = await axios.post(emailServiceURL, emailData, {
+      headers: {
+        Authorization: `Bearer ${emailApiToken}`,
+      },
+    });
+
+    // Success response
+    res.status(200).json({
+      message: 'Order processed and email sent successfully',
+      emailServiceResponse: emailResponse.data,
+    });
+  } catch (error) {
+    console.error('Failed to process order and send email:', error);
+    res.status(500).json({ error: 'Failed to process order and send email' });
+  }
+});
 
 module.exports = router;
