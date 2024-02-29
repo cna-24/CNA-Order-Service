@@ -233,14 +233,15 @@ router.get('/myorders/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// New route to process an order, update product quantity, and send an email
+// New route to process an order, update product quantity, and send an email with userId only
 router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
   const cartId = req.params.cartId;
-  const emailServiceURL = 'http://your-email-service-url/send_email'; // Replace with the actual email api endpoint
+  const emailServiceURL = 'http://your-email-service-url/send_email'; // Replace with the actual email API endpoint
 
   try {
     // Retrieve cart data using the getCartData function
     const cartData = await getCartData(cartId);
+    const userId = cartData.userId; // Assuming getCartData includes userId in its response
 
     // Update product quantities in the product-service
     for (const product of cartData.products) {
@@ -251,17 +252,15 @@ router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
       await updateProductQuantity(productId, cartQuantity);
     }
 
-    // Here, transform the cartData as needed to match the Email API's expected format
-    // This is a simplified example.
+    // Transform the cartData as needed to match the Email API's expected format, sending userId only
     const emailData = {
-      email_address: 'customer@example.com', // This should be dynamically set based on your application's logic
+      userId: userId, // Only include the userId in the email data
       subject: 'Your Order Details',
       body: `Your order with ID ${cartId} has been processed. Details: ${JSON.stringify(cartData)}`,
     };
 
-    // Send the data to the Email API
-    // Generate a JWT for Email API authentication
-    const emailApiToken = jwt.sign({ user: 'yourUserIdentifier' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    // Send the data to the Email API with JWT for authentication
+    const emailApiToken = jwt.sign({  service: 'OrderProcessingService'}, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     const emailResponse = await axios.post(emailServiceURL, emailData, {
       headers: {
@@ -271,14 +270,15 @@ router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
 
     // Success response
     res.status(200).json({
-      message: 'Order processed, product quantities updated, and email sent successfully',
+      message: 'Order processed, product quantities updated, and email data sent successfully with userId',
       emailServiceResponse: emailResponse.data,
     });
   } catch (error) {
-    console.error('Failed to process order, update product quantities, and send email:', error);
-    res.status(500).json({ error: 'Failed to process order, update product quantities, and send email' });
+    console.error('Failed to process order, update product quantities, and send email data with userId:', error);
+    res.status(500).json({ error: 'Failed to process order, update product quantities, and send email data with userId' });
   }
 });
+
 
 
 module.exports = router;
