@@ -11,6 +11,57 @@ require('dotenv').config()
 
 
 
+// Function to retrieve cart data from the cart service
+const getCartData = async (cartId) => {
+  const cartServiceURL = `https://cartserviceem.azurewebsites.net/cart/${cartId}`;
+
+  try {
+    const cartResponse = await axios.get(cartServiceURL);
+    return cartResponse.data;
+  } catch (error) {
+    console.error('Failed to retrieve cart data:', error);
+    throw new Error('Failed to retrieve cart data');
+  }
+};
+
+// Function to retrieve product details from the product service
+const getProductDetails = async (productId) => {
+  const productServiceURL = `{{apiUrl}}/${productId}`;
+
+  try {
+    const productResponse = await axios.get(productServiceURL);
+    return productResponse.data;
+  } catch (error) {
+    console.error(`Failed to retrieve product details for ID ${productId}:`, error);
+    throw new Error(`Failed to retrieve product details for ID ${productId}`);
+  }
+};
+
+// Function to update product quantity in the product service
+const updateProductQuantity = async (productId, cartQuantity) => {
+  const productServiceURL = `{{apiUrl}}/${productId}`;
+
+  try {
+    // Make a GET request to retrieve current product details
+    const currentProductDetails = await getProductDetails(productId);
+    const currentQuantity = currentProductDetails.quantity;
+
+    // Subtract cartQuantity from currentQuantity
+    const updatedQuantity = currentQuantity - cartQuantity;
+
+    // Make a PUT request to update product quantity
+    await axios.put(productServiceURL, {
+      quantity: updatedQuantity,
+    });
+
+    console.log(`Product with ID ${productId} quantity updated from ${currentQuantity} to ${updatedQuantity}`);
+  } catch (error) {
+    console.error(`Failed to update product with ID ${productId} quantity:`, error);
+    throw new Error(`Failed to update product with ID ${productId} quantity`);
+  }
+};
+
+
 /* TOKEN GENERATOR FOR TESTING USER ID
 http://localhost:3030/orders/generate-token to get ur token which you add to HTTP auth bearer
 */
@@ -27,19 +78,6 @@ router.get('/generate-token', (req, res) => {
   }
 });
 
-
-// Function to retrieve cart data from the cart service
-const getCartData = async (cartId) => {
-  const cartServiceURL = `https://cartserviceem.azurewebsites.net/cart/${cartId}`;
-
-  try {
-    const cartResponse = await axios.get(cartServiceURL);
-    return cartResponse.data;
-  } catch (error) {
-    console.error('Failed to retrieve cart data:', error);
-    throw new Error('Failed to retrieve cart data');
-  }
-};
 
 
 
@@ -195,7 +233,7 @@ router.get('/myorders/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// New route to process an order and send an email
+// New route to process an order, update product quantity, and send an email
 router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
   const cartId = req.params.cartId;
   const emailServiceURL = 'http://your-email-service-url/send_email'; // Replace with the actual email api endpoint
@@ -203,6 +241,15 @@ router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
   try {
     // Retrieve cart data using the getCartData function
     const cartData = await getCartData(cartId);
+
+    // Update product quantities in the product-service
+    for (const product of cartData.products) {
+      const productId = product.id;
+      const cartQuantity = product.quantity;
+
+      // Update product quantity using the updateProductQuantity function
+      await updateProductQuantity(productId, cartQuantity);
+    }
 
     // Here, transform the cartData as needed to match the Email API's expected format
     // This is a simplified example.
@@ -224,13 +271,14 @@ router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
 
     // Success response
     res.status(200).json({
-      message: 'Order processed and email sent successfully',
+      message: 'Order processed, product quantities updated, and email sent successfully',
       emailServiceResponse: emailResponse.data,
     });
   } catch (error) {
-    console.error('Failed to process order and send email:', error);
-    res.status(500).json({ error: 'Failed to process order and send email' });
+    console.error('Failed to process order, update product quantities, and send email:', error);
+    res.status(500).json({ error: 'Failed to process order, update product quantities, and send email' });
   }
 });
+
 
 module.exports = router;
