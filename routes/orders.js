@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const axios = require('axios');
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const authenticateToken = require('../middleware/auth')
@@ -27,6 +28,18 @@ router.get('/generate-token', (req, res) => {
 });
 
 
+// Function to retrieve cart data from the cart service
+const getCartData = async (cartId) => {
+  const cartServiceURL = `https://cartserviceem.azurewebsites.net/cart/${cartId}`;
+
+  try {
+    const cartResponse = await axios.get(cartServiceURL);
+    return cartResponse.data;
+  } catch (error) {
+    console.error('Failed to retrieve cart data:', error);
+    throw new Error('Failed to retrieve cart data');
+  }
+};
 
 
 
@@ -185,13 +198,11 @@ router.get('/myorders/:id', authenticateToken, async (req, res) => {
 // New route to process an order and send an email
 router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
   const cartId = req.params.cartId;
-  const cartServiceURL = `https://cartserviceem.azurewebsites.net/cart/${cartId}`;
   const emailServiceURL = 'http://your-email-service-url/send_email'; // Replace with the actual email api endpoint
 
   try {
-    // Get the cart details
-    const cartResponse = await axios.get(cartServiceURL);
-    const cartData = cartResponse.data;
+    // Retrieve cart data using the getCartData function
+    const cartData = await getCartData(cartId);
 
     // Here, transform the cartData as needed to match the Email API's expected format
     // This is a simplified example.
