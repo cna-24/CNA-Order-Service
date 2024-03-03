@@ -15,11 +15,11 @@ model CNA_Orders {
 
 model Orders {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime    @default(now()) @map("created_at")
-  userId  String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  user_id      String?
   orderNumber String
-  product     String?
-  quantity    Int?
-  totalPrice  Float?
-  updatedAt DateTime    @default(now()) @map("updated_at")
+  product     String  // Updated to reflect the product name
+  quantity    Int     // Updated to reflect the quantity of the product
+  price  Float   // Updated to reflect the total price of the order
+  updatedAt   DateTime @default(now()) @map("updated_at")
 }

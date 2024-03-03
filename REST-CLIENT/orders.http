@@ -9,40 +9,46 @@ Authorization: Bearer {{token}}
 
 ### GET ORDERS FOR LOGGED-IN USER
 GET {{apiUrl}}/orders/myorders
-Authorization: Bearer {{token}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidGVzdFVzZXIiLCJpYXQiOjE3MDk0NzMwNDcsImV4cCI6MTcwOTQ3NjY0N30.EOW0R8Tf_UH2rGnuoZzmtZ7xh5hUBHYK1VJZPmhSWCg
 #/* TOKEN GENERATOR FOR TESTING USER ID
 #http://localhost:3030/orders/generate-token to get ur token which you add to HTTP auth bearer
 #*/
 
 ###Get token from above link and add to authorization for testing purposes! Also change userId in generator...
+
+
+###
+GET https://cartserviceem.azurewebsites.net/cart
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidGVzdFVzZXIiLCJpYXQiOjE3MDk0NzMwNDcsImV4cCI6MTcwOTQ3NjY0N30.EOW0R8Tf_UH2rGnuoZzmtZ7xh5hUBHYK1VJZPmhSWCg
+###
 POST http://localhost:3030/orders
-Authorization: Bearer {{token}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidGVzdFVzZXIiLCJpYXQiOjE3MDk0NzMwNDcsImV4cCI6MTcwOTQ3NjY0N30.EOW0R8Tf_UH2rGnuoZzmtZ7xh5hUBHYK1VJZPmhSWCg
 Content-Type: application/json
 
 {
-  "orderNumber": "new test",
-  "product": "donny bump",
+  "orderNumber": "newtest",
+  "product": "random",
   "quantity": 2,
-  "totalPrice": 50
+  "price": 500
 }
 
 
 ### PATCH ORDER
 
-PATCH http://localhost:3030/orders/65ce1d548a68f23529947b45
-Authorization: Bearer {{token}}
+PATCH http://localhost:3030/orders/65e47a2f35a429da1ca0a4e1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidGVzdFVzZXIiLCJpYXQiOjE3MDk0NzMwNDcsImV4cCI6MTcwOTQ3NjY0N30.EOW0R8Tf_UH2rGnuoZzmtZ7xh5hUBHYK1VJZPmhSWCg
 Content-Type: application/json
 
 {
   "orderNumber": "123456",
   "product": "Updated 2",
   "quantity": 5,
-  "totalPrice": 50.99
+  "price": 50.99
 }
 
 ### DELETE ORDER
 
-DELETE {{apiUrl}}/orders/65ce1d548a68f23529947b45
-Authorization: Bearer {{token}}
+DELETE {{apiUrl}}/orders/65e47c59a7b0d620192c0efd
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidGVzdFVzZXIiLCJpYXQiOjE3MDk0NzMwNDcsImV4cCI6MTcwOTQ3NjY0N30.EOW0R8Tf_UH2rGnuoZzmtZ7xh5hUBHYK1VJZPmhSWCg
 
 ###
