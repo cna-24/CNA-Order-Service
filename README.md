@@ -50,37 +50,30 @@ DELETE /orders/:id
 
 ## Examples
 
-```bash
-### GET ALL
-GET https://cna-order-service.azurewebsites.net/orders/
-```
 
 ```bash
-### GET BY ID
+### GET ORDER BY ORDER ID
 GET https://cna-order-service.azurewebsites.net/orders/myorders/:id
 Authorization: Bearer {{token}}
 ```
 
 ```bash
-### GET ORDERS FOR LOGGED-IN USER
+### GET ORDER FOR LOGGED-IN USER
 GET https://cna-order-service.azurewebsites.net/orders/myorders
 Authorization: Bearer {{token}}
-#/* TOKEN GENERATOR FOR TESTING USER ID
-#http://localhost:3030/orders/generate-token to get ur token which you add to HTTP auth bearer
-#*/
 ```
 
 ```bash
-### Get token from above link and add to authorization for testing purposes! Also change userId in generator...
+### POST ORDER
+
 POST https://cna-order-service.azurewebsites.net/orders
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "orderNumber": "new test",
-  "product": "donny bump",
-  "quantity": 2,
-  "totalPrice": 50
+  "product": "CAMEL001",
+  "quantity": 1,
+  "price": 50000
 }
 ```
 
@@ -92,10 +85,9 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "orderNumber": "123456",
-  "product": "Updated 2",
-  "quantity": 5,
-  "totalPrice": 50.99
+  "product": "CAM002",
+  "quantity": 3,
+  "price": 15000
 }
 ```
 
