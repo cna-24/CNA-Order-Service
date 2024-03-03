@@ -18,8 +18,8 @@ model Orders {
   createdAt   DateTime @default(now()) @map("created_at")
   user_id      String?
   orderNumber String
-  product     String  // Updated to reflect the product name
-  quantity    Int     // Updated to reflect the quantity of the product
-  price  Float   // Updated to reflect the total price of the order
+  product     String  
+  quantity    Int     
+  price  Float   
   updatedAt   DateTime @default(now()) @map("updated_at")
 }
