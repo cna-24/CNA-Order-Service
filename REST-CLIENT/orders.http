@@ -26,7 +26,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidGVzd
 Content-Type: application/json
 
 {
-  "orderNumber": "newtest",
   "product": "random",
   "quantity": 2,
   "price": 500
@@ -35,12 +34,11 @@ Content-Type: application/json
 
 ### PATCH ORDER
 
-PATCH http://localhost:3030/orders/65e47a2f35a429da1ca0a4e1
+PATCH http://localhost:3030/orders/65e4808ae6a8ca56223e306d
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidGVzdFVzZXIiLCJpYXQiOjE3MDk0NzMwNDcsImV4cCI6MTcwOTQ3NjY0N30.EOW0R8Tf_UH2rGnuoZzmtZ7xh5hUBHYK1VJZPmhSWCg
 Content-Type: application/json
 
 {
-  "orderNumber": "123456",
   "product": "Updated 2",
   "quantity": 5,
   "price": 50.99

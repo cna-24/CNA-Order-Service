@@ -9,7 +9,16 @@ const prisma = new PrismaClient()
 require('dotenv').config()
 
 
-
+//Simple Function to generate a random order number for when creating a new order
+function generateOrderNumber() {
+  // Take the last 6 digits of the current timestamp
+  const timestamp = Date.now().toString().slice(-6); 
+  // Generate a random string of length 6
+  const random = Math.random().toString(36).substr(2, 6); 
+  // Combine timestamp and random components to create the order number
+  const orderNumber = `${timestamp}${random}`;
+  return orderNumber;
+}
 
 // Function to retrieve cart data from the cart service
 const getCartData = async (cartId) => {
@@ -106,17 +115,18 @@ router.get('/myorders', authenticateToken, async (req, res) => {
 
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { orderNumber, product, quantity, price  } = req.body;
+    const {  product, quantity, price  } = req.body;
     const userId = req.authUser.user_id;
 
-    if (!orderNumber || !product || !quantity || !price ) {
+    if (  !product || !quantity || !price ) {
       return res.status(400).json({ error: 'Invalid request data. Please provide order details.' });
     }
 
+    const GeneratedorderNumber = generateOrderNumber();
     // Create a new order
     const newOrder = await prisma.orders.create({
       data: {
-        orderNumber: orderNumber,
+        orderNumber: GeneratedorderNumber,
         user_id: userId, 
         product: product,
         quantity: quantity,
