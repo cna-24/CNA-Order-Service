@@ -310,4 +310,171 @@ router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
   }
 });
 
+
+/**
+ * @swagger
+ * /orders/myorders/{id}:
+ *   get:
+ *     summary: Retrieve a single order by ID for the authenticated user.
+ *     description: Fetches details of a specific order by its ID, only if it belongs to the authenticated user.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the order to retrieve.
+ *     responses:
+ *       200:
+ *         description: Detailed information about the order.
+ *       404:
+ *         description: Order not found for this user.
+ *     security:
+ *       - bearerAuth: []
+ */
+
+
+/**
+ * @swagger
+ * /orders/{id}:
+ *   delete:
+ *     summary: Deletes a specific order.
+ *     description: Allows for the deletion of an order by its ID. Only accessible by the user who created the order.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the order to delete.
+ *     responses:
+ *       200:
+ *         description: Order deleted successfully.
+ *       403:
+ *         description: Unauthorized to delete this order.
+ *       400:
+ *         description: Failed to delete the order.
+ *     security:
+ *       - bearerAuth: []
+ */
+
+
+/**
+ * @swagger
+ * /orders/{id}:
+ *   patch:
+ *     summary: Updates an existing order.
+ *     description: Allows for updating the details of an existing order. Only accessible by the user who created the order.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the order to update.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               orderNumber:
+ *                 type: string
+ *               product:
+ *                 type: string
+ *               quantity:
+ *                 type: integer
+ *               price:
+ *                 type: number
+ *                 format: float
+ *     responses:
+ *       200:
+ *         description: Order updated successfully.
+ *       403:
+ *         description: Unauthorized to update this order.
+ *       400:
+ *         description: Failed to update the order.
+ *     security:
+ *       - bearerAuth: []
+ */
+
+
+/**
+ * @swagger
+ * /orders/process-order/{cartId}:
+ *   post:
+ *     summary: Processes an order from a cart.
+ *     description: Retrieves cart data, updates product quantities, sends an email to the user, and saves the order to the database.
+ *     parameters:
+ *       - in: path
+ *         name: cartId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The cart ID to process.
+ *     responses:
+ *       200:
+ *         description: Order processed successfully, including product updates and email confirmation.
+ *       500:
+ *         description: Failed to process the order.
+ *     security:
+ *       - bearerAuth: []
+ */
+
+
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    Order:
+ *      type: object
+ *      properties:
+ *        orderNumber:
+ *          type: string
+ *          example: '123456abcdef'
+ *        user_id:
+ *          type: string
+ *          example: 'userId123'
+ *        product:
+ *          type: string
+ *          example: 'Product Name'
+ *        quantity:
+ *          type: integer
+ *          example: 1
+ *        price:
+ *          type: number
+ *          format: float
+ *          example: 19.99
+ *      required:
+ *        - orderNumber
+ *        - user_id
+ *        - product
+ *        - quantity
+ *        - price
+ */
+
+
+/**
+ * @swagger
+ * /orders/myorders:
+ *   get:
+ *     summary: Retrieve all orders for the authenticated user.
+ *     description: Fetches a list of orders placed by the authenticated user.
+ *     responses:
+ *       200:
+ *         description: An array of orders.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Order'
+ *       404:
+ *         description: No orders found for this user.
+ *     security:
+ *       - bearerAuth: []
+ */
+
+
 module.exports = router;
