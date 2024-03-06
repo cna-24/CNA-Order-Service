@@ -8,6 +8,26 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 require('dotenv').config()
 
+async function createOrder(userId, product, quantity, price) {
+  try {
+    const GeneratedorderNumber = generateOrderNumber();
+    // Create a new order
+    const newOrder = await prisma.orders.create({
+      data: {
+        orderNumber: GeneratedorderNumber,
+        user_id: userId,
+        product: product,
+        quantity: quantity,
+        price: price,
+      },
+    });
+
+    return newOrder;
+  } catch (error) {
+    console.error(error);
+    throw new Error('Failed to create an order');
+  }
+}
 
 //Simple Function to generate a random order number for when creating a new order
 function generateOrderNumber() {
@@ -115,29 +135,19 @@ router.get('/myorders', authenticateToken, async (req, res) => {
 
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const {  product, quantity, price  } = req.body;
+    const { product, quantity, price } = req.body;
     const userId = req.authUser.user_id;
 
-    if (  !product || !quantity || !price ) {
+    if (!product || !quantity || !price) {
       return res.status(400).json({ error: 'Invalid request data. Please provide order details.' });
     }
 
-    const GeneratedorderNumber = generateOrderNumber();
-    // Create a new order
-    const newOrder = await prisma.orders.create({
-      data: {
-        orderNumber: GeneratedorderNumber,
-        user_id: userId, 
-        product: product,
-        quantity: quantity,
-        price: price,
-      },
-    });
+    const newOrder = await createOrder(userId, product, quantity, price);
 
     res.status(201).json(newOrder);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to create an order' });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -278,6 +288,17 @@ router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
       },
     });
 
+    // Save the order to our database
+    const orderDetails = cartData.items.map(item => ({
+      product: item.productId,
+      quantity: item.quantity,
+      price: item.price // Adjust based on your data structure
+    }));
+    
+    for (const detail of orderDetails) {
+      await createOrder(userId, detail.product, detail.quantity, detail.price);
+    }
+
     // Success response
     res.status(200).json({
       message: 'Order processed, product quantities updated, and email data sent successfully with userId',
@@ -288,7 +309,5 @@ router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to process order, update product quantities, and send email data with userId' });
   }
 });
-
-
 
 module.exports = router;
