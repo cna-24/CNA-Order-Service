@@ -63,7 +63,11 @@ const getProductDetails = async (productId) => {
   const productServiceURL = `https://cna-product-service.azurewebsites.net/products/${productId}`;
 
   try {
-    const productResponse = await axios.get(productServiceURL);
+    const productResponse = await axios.get(productServiceURL, {
+      headers: {
+        Authorization: `Bearer ${process.env.TOKEN}`,
+      },
+    });
     return productResponse.data;
   } catch (error) {
     console.error(`Failed to retrieve product details for ID ${productId}:`, error);
@@ -86,6 +90,10 @@ const updateProductQuantity = async (productId, cartQuantity) => {
     // Make a PATCH request to update product quantity
     await axios.patch(productServiceURL, {
       quantity: updatedQuantity,
+    }, {
+      headers: {
+        Authorization: `Bearer ${process.env.TOKEN}`,
+      },
     });
 
     console.log(`Product with ID ${productId} quantity updated from ${currentQuantity} to ${updatedQuantity}`);
@@ -300,7 +308,7 @@ router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
       price: item.price // Adjust based on your data structure
     }));
 
-    
+
     for (const detail of orderDetails) {
       await createOrder(userId, detail.product, detail.quantity, detail.price);
     }
