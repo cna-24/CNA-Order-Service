@@ -41,12 +41,17 @@ function generateOrderNumber() {
 }
 
 // Function to retrieve cart data from the cart service
-const getCartData = async (cartId) => {
-  const cartServiceURL = `https://cartserviceem.azurewebsites.net/cart/${cartId}`;
+const getCartData = async () => {
+  const cartServiceURL = `https://cartserviceem.azurewebsites.net/cart`;
 
   try {
-    const cartResponse = await axios.get(cartServiceURL);
-    return cartResponse.data;
+    const result = await axios.get(cartServiceURL, {
+      headers: {
+        Authorization: `Bearer ${process.env.JWT_SECRET}`, // Add user JWT
+      },
+    });
+
+    return result.data;
   } catch (error) {
     console.error('Failed to retrieve cart data:', error);
     throw new Error('Failed to retrieve cart data');
@@ -55,7 +60,7 @@ const getCartData = async (cartId) => {
 
 // Function to retrieve product details from the product service
 const getProductDetails = async (productId) => {
-  const productServiceURL = `{{apiUrl}}/${productId}`;
+  const productServiceURL = `https://cna-product-service.azurewebsites.net/products/${productId}`;
 
   try {
     const productResponse = await axios.get(productServiceURL);
@@ -68,7 +73,7 @@ const getProductDetails = async (productId) => {
 
 // Function to update product quantity in the product service
 const updateProductQuantity = async (productId, cartQuantity) => {
-  const productServiceURL = `{{apiUrl}}/${productId}`;
+  const productServiceURL = `https://cna-product-service.azurewebsites.net/products/${productId}`;
 
   try {
     // Make a GET request to retrieve current product details
@@ -78,8 +83,8 @@ const updateProductQuantity = async (productId, cartQuantity) => {
     // Subtract cartQuantity from currentQuantity
     const updatedQuantity = currentQuantity - cartQuantity;
 
-    // Make a PUT request to update product quantity
-    await axios.put(productServiceURL, {
+    // Make a PATCH request to update product quantity
+    await axios.patch(productServiceURL, {
       quantity: updatedQuantity,
     });
 
@@ -260,13 +265,13 @@ router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
 
   try {
     // Retrieve cart data using the getCartData function
-    const cartData = await getCartData(cartId);
+    const cartData = await getCartData();
     const userId = cartData.user_id; // Assuming getCartData includes userId in its response
 
     // Update product quantities in the product-service
-    for (const product of cartData.products) {
-      const productId = product.id;
-      const cartQuantity = product.quantity;
+    for (const cartItem of cartData) {
+      const productId = cartItem.product; // Assuming product field is the productId
+      const cartQuantity = cartItem.quantity;
 
       // Update product quantity using the updateProductQuantity function
       await updateProductQuantity(productId, cartQuantity);
@@ -294,6 +299,7 @@ router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
       quantity: item.quantity,
       price: item.price // Adjust based on your data structure
     }));
+
     
     for (const detail of orderDetails) {
       await createOrder(userId, detail.product, detail.quantity, detail.price);
