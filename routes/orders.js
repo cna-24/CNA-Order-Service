@@ -40,6 +40,24 @@ function generateOrderNumber() {
   return orderNumber;
 }
 
+// Function to delete cart data in the cart service
+const deleteCartData = async (userToken) => {
+  const cartServiceURL = `https://cartserviceem.azurewebsites.net/cart`;
+
+  try {
+    const result = await axios.delete(cartServiceURL, {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+
+    return result.data;
+  } catch (error) {
+    console.error('Failed to retrieve cart data:', error);
+    throw new Error('Failed to retrieve cart data');
+  }
+};
+
 // Function to retrieve cart data from the cart service
 const getCartData = async (userToken) => {
   const cartServiceURL = `https://cartserviceem.azurewebsites.net/cart`;
@@ -47,7 +65,7 @@ const getCartData = async (userToken) => {
   try {
     const result = await axios.get(cartServiceURL, {
       headers: {
-        Authorization: `Bearer ${userToken}`, // Add user JWT
+        Authorization: `Bearer ${userToken}`,
       },
     });
 
@@ -370,7 +388,7 @@ router.post('/process-order', authenticateToken, async (req, res) => {
     const cartData = await getCartData(userToken);
 
     // Allting härifrån neråt behöver ännu testas/ändras
-    
+
     const userId = cartData.id; // Assuming getCartData includes userId in its response
 
     // Update product quantities in the product-service
@@ -409,6 +427,9 @@ router.post('/process-order', authenticateToken, async (req, res) => {
     for (const detail of orderDetails) {
       await createOrder(userId, detail.product, detail.quantity, detail.price);
     }
+
+    // Delete cart data using the deleteCartData function
+    await deleteCartData(userToken);
 
     // Success response
     res.status(200).json({
