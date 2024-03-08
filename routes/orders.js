@@ -271,6 +271,17 @@ router.patch('/:orderId', authenticateToken, async (req, res) => {
     if (!orderId) {
       return res.status(400).json({ error: 'Invalid request data. Order ID is required.' });
     }
+
+    const existingOrder = await prisma.orders.findUnique({
+      where: {
+        id: orderId
+      }
+    });
+
+    if (!existingOrder) {
+      return res.status(404).json({ error: 'Order not found.' });
+    }
+
     // Begin transaction
     await prisma.$transaction([
       // Update order address
