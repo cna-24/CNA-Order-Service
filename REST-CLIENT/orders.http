@@ -10,32 +10,40 @@ Authorization: Bearer {{token}}
 ### GET ORDERS FOR LOGGED-IN USER
 GET {{apiUrl}}/orders/myorders
 Authorization: Bearer {{token}}
-#/* TOKEN GENERATOR FOR TESTING USER ID
-#http://localhost:3030/orders/generate-token to get ur token which you add to HTTP auth bearer
-#*/
 
 ###Get token from above link and add to authorization for testing purposes! Also change userId in generator...
 
 
 ###
-GET https://cartserviceem.azurewebsites.net/cart
+GET http://localhost:3030/orders/myorders
 Authorization: Bearer {{token}}
 ###
 POST http://localhost:3030/orders
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
-{
-  "product": "test",
-  "quantity": 222,
-  "price": 22
-}
 
 ###
-POST http://localhost:3030/orders/product-service-test
-
+POST http://localhost:3030/orders
 Authorization: Bearer {{token}}
 Content-Type: application/json
+
+{
+  "products": [
+    {
+      "product": "Product test",
+      "price": 10.99,
+      "quantity": 2
+    },
+    {
+      "product": "Product 2test",
+      "price": 19.99,
+      "quantity": 1
+    }
+  ],
+  "address": "123 test St"
+}
+
 
 
 ### PATCH ORDER

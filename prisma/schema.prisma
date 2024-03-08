@@ -14,31 +14,23 @@ model CNA_Orders {
 }
 
 model Orders {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime @default(now()) @map("created_at")
-  user_id      String?
-  orderNumber String
-  product     String  
-  quantity    Int     
-  price  Float   
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  user_id    Int
+  username   String?
+  date       DateTime  @default(now())
+  address    String?
   updatedAt   DateTime @default(now()) @map("updated_at")
-}
-
-
-model OrdersTest {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  user_id   String?
-  date      DateTime  @default(now())
-  address   String?
-  rows      Rows[]    @relation(fields: [id], references: [order_id])
-  createdAt   DateTime @default(now()) @map("created_at")
+  
+  rows       Rows[]
 }
 
 model Rows {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  order_id  String   @map("order_id")
-  product   String
-  price     Float
-  quantity  Int
-  order     Orders   @relation(fields: [order_id], references: [id])
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  order_id   String   @map("order_id") @db.ObjectId 
+  product    String
+  price      Float
+  quantity   Int
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+  order      Orders   @relation(fields: [order_id], references: [id])
 }

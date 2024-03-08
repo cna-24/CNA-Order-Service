@@ -170,35 +170,22 @@ router.post('/product-service-test', authenticateToken, async (req, res) => {
 
 // TEST-CODE-ENDS
 
-/* TOKEN GENERATOR FOR TESTING USER ID
-http://localhost:3030/orders/generate-token to get ur token which you add to HTTP auth bearer
-*/
-
-router.get('/generate-token', (req, res) => {
-  try {
-      const userId = 'testUser'; // Example user ID
-      const jwtSecret = process.env.JWT_SECRET; // Your secret key from environment variable
-      const token = jwt.sign({ id: userId }, jwtSecret, { expiresIn: '1h' });
-      res.status(200).json({ token });
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to generate token' });
-  }
-});
-
-
-
 
 // Route for User front-end. Get 
 router.get('/myorders', authenticateToken, async (req, res) => {
   try {
     // Accessing the user ID from req.authUser
     const userId = req.authUser.id;
-
+    const userName = req.authUser.username;
+    
     const userOrders = await prisma.orders.findMany({
       where: {
-        id: userId, // Ensure this matches the field in your Orders model that references the user ID
+        user_id: userId,
+        username: userName
       },
+      include: {
+        rows: true
+      }
     });
 
     if (userOrders.length === 0) {
@@ -212,16 +199,41 @@ router.get('/myorders', authenticateToken, async (req, res) => {
   }
 });
 
+
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { product, quantity, price } = req.body;
-    const userId = req.authUser.id;
+    const { products, address } = req.body;
+    const { id: userId, username: userName } = req.authUser;
 
-    if (!product || !quantity || !price) {
-      return res.status(400).json({ error: 'Invalid request data. Please provide order details.' });
+    // Check if products is provided
+    if (!products || (Array.isArray(products) && products.length === 0)) {
+      return res.status(400).json({ error: 'Invalid request data. Please provide at least one product.' });
     }
 
-    const newOrder = await createOrder(userId, product, quantity, price);
+    // Create an order with one or multiple products
+    const newOrder = await prisma.orders.create({
+      data: {
+        user_id: userId,
+        username: userName,
+        address: address,
+        rows: {
+          createMany: {
+            data: Array.isArray(products) ? products.map(product => ({
+              product: product.product,
+              price: product.price,
+              quantity: product.quantity
+            })) : [{
+              product: products.product,
+              price: products.price,
+              quantity: products.quantity
+            }]
+          }
+        }
+      },
+      include: {
+        rows: true
+      }
+    });
 
     res.status(201).json(newOrder);
   } catch (error) {
@@ -229,6 +241,8 @@ router.post('/', authenticateToken, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
 
 // ID av order får man från get request ovan, kanske måste implementera get by id.
 router.patch('/:id', authenticateToken, async (req, res) => {

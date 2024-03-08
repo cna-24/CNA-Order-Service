@@ -15,15 +15,7 @@ cd [project-directory]
 npm install
 npm start
 ```
-## Usage
 
-Token Generation
-To generate a token for testing, make a GET request to:
-```bash
-https://cna-order-service.azurewebsites.net/orders/generate-token
-
-Replace {{token}} with your generated token.
-```
 
 ## Endpoints Overview
 
