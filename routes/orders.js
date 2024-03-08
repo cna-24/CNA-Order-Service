@@ -15,7 +15,7 @@ async function createOrder(userId, product, quantity, price) {
     const newOrder = await prisma.orders.create({
       data: {
         orderNumber: GeneratedorderNumber,
-        user_id: userId,
+        id: userId,
         product: product,
         quantity: quantity,
         price: price,
@@ -47,7 +47,7 @@ const getCartData = async () => {
   try {
     const result = await axios.get(cartServiceURL, {
       headers: {
-        Authorization: `Bearer ${process.env.JWT_SECRET}`, // Add user JWT
+        Authorization: `Bearer {{token}}`, // Add user JWT
       },
     });
 
@@ -65,7 +65,7 @@ const getProductDetails = async (productId) => {
   try {
     const productResponse = await axios.get(productServiceURL, {
       headers: {
-        Authorization: `Bearer ${process.env.TOKEN}`,
+        Authorization: `Bearer {{token}}`,
       },
     });
     return productResponse.data;
@@ -92,7 +92,7 @@ const updateProductQuantity = async (productId, cartQuantity) => {
       quantity: updatedQuantity,
     }, {
       headers: {
-        Authorization: `Bearer ${process.env.TOKEN}`,
+        Authorization: `Bearer {{token}}`,
       },
     });
 
@@ -112,7 +112,7 @@ const getProductDetailsTest = async (productId) => {
   try {
     const productResponse = await axios.get(productServiceURL, {
       headers: {
-        Authorization: `Bearer ${process.env.TOKEN}`,
+        Authorization: `Bearer {{token}}`,
       },
     });
     return productResponse.data;
@@ -126,7 +126,7 @@ const getProductDetailsTest = async (productId) => {
 const updateProductQuantityTest = async () => {
 
   const productId = "CAM-002";
-  const cartQuantity = 2;
+  const cartQuantity = 1;
   const productServiceURL = `https://cna-product-service.azurewebsites.net/products/${productId}`;
 
   try {
@@ -142,7 +142,7 @@ const updateProductQuantityTest = async () => {
       quantity: updatedQuantity,
     }, {
       headers: {
-        Authorization: `Bearer ${process.env.TOKEN}`,
+        Authorization: `Bearer {{token}}`,
       },
     });
 
@@ -156,12 +156,12 @@ const updateProductQuantityTest = async () => {
 
 router.post('/product-service-test', authenticateToken, async (req, res) => {
   try {
-    const userId = req.authUser.userId;
-
+   
+   
     // Update product quantity using the updateProductQuantityTest function
     await updateProductQuantityTest();
 
-    res.status(201).json(newOrder);
+   
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -178,7 +178,7 @@ router.get('/generate-token', (req, res) => {
   try {
       const userId = 'testUser'; // Example user ID
       const jwtSecret = process.env.JWT_SECRET; // Your secret key from environment variable
-      const token = jwt.sign({ user_id: userId }, jwtSecret, { expiresIn: '1h' });
+      const token = jwt.sign({ id: userId }, jwtSecret, { expiresIn: '1h' });
       res.status(200).json({ token });
   } catch (error) {
       console.error(error);
@@ -193,11 +193,11 @@ router.get('/generate-token', (req, res) => {
 router.get('/myorders', authenticateToken, async (req, res) => {
   try {
     // Accessing the user ID from req.authUser
-    const userId = req.authUser.user_id;
+    const userId = req.authUser.id;
 
     const userOrders = await prisma.orders.findMany({
       where: {
-        user_id: userId, // Ensure this matches the field in your Orders model that references the user ID
+        id: userId, // Ensure this matches the field in your Orders model that references the user ID
       },
     });
 
@@ -215,7 +215,7 @@ router.get('/myorders', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { product, quantity, price } = req.body;
-    const userId = req.authUser.user_id;
+    const userId = req.authUser.id;
 
     if (!product || !quantity || !price) {
       return res.status(400).json({ error: 'Invalid request data. Please provide order details.' });
@@ -237,14 +237,14 @@ router.patch('/:id', authenticateToken, async (req, res) => {
     const { orderNumber, product, quantity, price } = req.body;
 
    
-    const userId = req.authUser.user_id;
+    const userId = req.authUser.id;
 
     // Check if the order belongs to the authenticated user
     const order = await prisma.orders.findFirst({
       where: {
         AND: [
           { id: orderId },
-          { user_id: userId }
+          { id: userId }
         ]
       },
     });
@@ -277,14 +277,14 @@ router.patch('/:id', authenticateToken, async (req, res) => {
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const orderId = req.params.id;
-    const userId = req.authUser.user_id;
+    const userId = req.authUser.id;
 
     // Check if the order belongs to the authenticated user
     const order = await prisma.orders.findFirst({
       where: {
         AND: [
           { id: orderId },
-          { user_id: userId }
+          { id: userId }
         ]
       },
     });
@@ -311,13 +311,13 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 router.get('/myorders/:id', authenticateToken, async (req, res) => {
   try {
     // Accessing the user ID from req.authUser
-    const userId = req.authUser.user_id;
+    const userId = req.authUser.id;
     const orderId = req.params.id;
 
     const userOrder = await prisma.orders.findUnique({
       where: {
         id: orderId,
-        user_id: userId,
+        id: userId,
       },
     });
 
@@ -334,13 +334,13 @@ router.get('/myorders/:id', authenticateToken, async (req, res) => {
 
 // New route to process an order, update product quantity, and send an email with userId only
 router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
-  const cartId = req.params.cartId;
+  const userId = req.authuser.id;
   const emailServiceURL = 'http://your-email-service-url/send_email'; // Replace with the actual email API endpoint
 
   try {
     // Retrieve cart data using the getCartData function
     const cartData = await getCartData();
-    const userId = cartData.user_id; // Assuming getCartData includes userId in its response
+    const userId = cartData.id; // Assuming getCartData includes userId in its response
 
     // Update product quantities in the product-service
     for (const cartItem of cartData) {
@@ -353,7 +353,7 @@ router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
 
     // Transform the cartData as needed to match the Email API's expected format, sending userId only
     const emailData = {
-      user_id: userId, // Only include the userId in the email data
+      id: userId, // Only include the userId in the email data
       subject: 'Your Order Details',
       body: `Your order with ID ${cartId} has been processed. Details: ${JSON.stringify(cartData)}`,
     };
@@ -513,7 +513,7 @@ router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
  *        orderNumber:
  *          type: string
  *          example: '123456abcdef'
- *        user_id:
+ *        id:
  *          type: string
  *          example: 'userId123'
  *        product:

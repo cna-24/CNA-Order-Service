@@ -23,3 +23,22 @@ model Orders {
   price  Float   
   updatedAt   DateTime @default(now()) @map("updated_at")
 }
+
+
+model OrdersTest {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  user_id   String?
+  date      DateTime  @default(now())
+  address   String?
+  rows      Rows[]    @relation(fields: [id], references: [order_id])
+  createdAt   DateTime @default(now()) @map("created_at")
+}
+
+model Rows {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  order_id  String   @map("order_id")
+  product   String
+  price     Float
+  quantity  Int
+  order     Orders   @relation(fields: [order_id], references: [id])
+}
