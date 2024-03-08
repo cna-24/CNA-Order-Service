@@ -266,6 +266,8 @@ router.patch('/:orderId', authenticateToken, async (req, res) => {
   try {
     const orderId = req.params.orderId;
     const { address, products } = req.body; // Updated order data
+    const userId = req.authUser.id;
+    const userName = req.authUser.username;
 
     // Check if order ID is provided
     if (!orderId) {
@@ -274,7 +276,9 @@ router.patch('/:orderId', authenticateToken, async (req, res) => {
 
     const existingOrder = await prisma.orders.findUnique({
       where: {
-        id: orderId
+        id: orderId,
+        user_id: userId,
+        username: userName
       }
     });
 
@@ -342,7 +346,12 @@ router.delete('/:orderId', authenticateToken, async (req, res) => {
     if (!order) {
       return res.status(404).json({ error: 'Order not found.' });
     }
+    
+    if (order.user_id !== userId) {
+      return res.status(403).json({ error: 'Not authorized to delete this order.' });
+    }
 
+ 
     // Delete associated rows first
     await prisma.rows.deleteMany({
       where: {
@@ -365,17 +374,22 @@ router.delete('/:orderId', authenticateToken, async (req, res) => {
 });
 
 
-router.get('/myorders/:id', authenticateToken, async (req, res) => {
+router.get('/myorders/:orderId', authenticateToken, async (req, res) => {
   try {
     // Accessing the user ID from req.authUser
     const userId = req.authUser.id;
-    const orderId = req.params.id;
+    const userName = req.authUser.username;
+    const orderId = req.params.orderId;
 
     const userOrder = await prisma.orders.findUnique({
       where: {
         id: orderId,
-        id: userId,
+        user_id: userId,
+        username: userName
       },
+      include: {
+        rows: true
+      }
     });
 
     if (!userOrder) {
