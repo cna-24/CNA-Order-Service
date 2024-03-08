@@ -245,80 +245,95 @@ router.post('/', authenticateToken, async (req, res) => {
 
 
 // ID av order får man från get request ovan, kanske måste implementera get by id.
-router.patch('/:id', authenticateToken, async (req, res) => {
+router.patch('/:orderId', authenticateToken, async (req, res) => {
   try {
-    const orderId = req.params.id;
-    const { orderNumber, product, quantity, price } = req.body;
+    const orderId = req.params.orderId;
+    const { address, products } = req.body; // Updated order data
 
-   
-    const userId = req.authUser.id;
-
-    // Check if the order belongs to the authenticated user
-    const order = await prisma.orders.findFirst({
-      where: {
-        AND: [
-          { id: orderId },
-          { id: userId }
-        ]
-      },
-    });
-
-    if (!order) {
-      return res.status(403).json({ error: 'Unauthorized to update this order' });
+    // Check if order ID is provided
+    if (!orderId) {
+      return res.status(400).json({ error: 'Invalid request data. Order ID is required.' });
     }
+    // Begin transaction
+    await prisma.$transaction([
+      // Update order address
+      prisma.orders.update({
+        where: {
+          id: orderId,
+        },
+        data: {
+          address: address,
+        },
+      }),
+      // Update or create products
+      ...products.map(product => prisma.rows.upsert({
+        where: { id: product.id },
+        create: {
+          product: product.product,
+          price: product.price,
+          quantity: product.quantity,
+          order_id: orderId 
+        },
+        update: {
+          product: product.product,
+          price: product.price,
+          quantity: product.quantity,
+        }
+      }))
+    ]);
 
-    // Update the order
-    const updatedOrder = await prisma.orders.update({
+    const updatedOrder = await prisma.orders.findUnique({
       where: {
-        id: orderId,
+        id: orderId
       },
-      data: {
-        orderNumber,
-        product,
-        quantity,
-        price,
-        updatedAt: new Date(), 
-      },
+      include: {
+        rows: true
+      }
     });
-
-    res.json({ message: 'Order updated successfully', order: updatedOrder });
+    res.status(200).json({ message: 'Order updated successfully.', order: updatedOrder });
   } catch (error) {
     console.error(error);
-    res.status(400).json({ error: 'Failed to update the order' });
+    res.status(500).json({ error: error.message });
   }
 });
 
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:orderId', authenticateToken, async (req, res) => {
   try {
-    const orderId = req.params.id;
+    const orderId = req.params.orderId;
     const userId = req.authUser.id;
+    const userName = req.authUser.username;
 
-    // Check if the order belongs to the authenticated user
-    const order = await prisma.orders.findFirst({
+    const order = await prisma.orders.findUnique({
       where: {
-        AND: [
-          { id: orderId },
-          { id: userId }
-        ]
+        id: orderId,
+        user_id:userId,
+        username:userName
       },
     });
 
     if (!order) {
-      return res.status(403).json({ error: 'Unauthorized to delete this order' });
+      return res.status(404).json({ error: 'Order not found.' });
     }
 
-    // Delete the order
-    await prisma.orders.delete({
-      where: {
-        id: orderId,
-      },
-    });
+  // Delete associated rows first
+  await prisma.rows.deleteMany({
+    where: {
+      order_id: orderId,
+    },
+  });
 
-    res.status(200).json({ message: 'Order deleted successfully' });
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ error: 'Failed to delete the order' });
-  }
+  // Delete the order
+  await prisma.orders.delete({
+    where: {
+      id: orderId,
+    },
+  });
+
+  res.status(200).json({ message: 'Order successfully deleted.' });
+} catch (error) {
+  console.error(error);
+  res.status(500).json({ error: 'Internal server error.' });
+}
 });
 
 

@@ -11,7 +11,6 @@ Authorization: Bearer {{token}}
 GET {{apiUrl}}/orders/myorders
 Authorization: Bearer {{token}}
 
-###Get token from above link and add to authorization for testing purposes! Also change userId in generator...
 
 
 ###
@@ -48,19 +47,25 @@ Content-Type: application/json
 
 ### PATCH ORDER
 
-PATCH http://localhost:3030/orders/65e4808ae6a8ca56223e306d
+PATCH http://localhost:3030/orders/65eb45ed18377d3ba6f604b0
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "product": "Updated 2",
-  "quantity": 5,
-  "price": 50.99
+  "address": "New address for the order",
+  "products": [
+    {
+      "id": "65eb45ed18377d3ba6f604b1",
+      "product": "test Product test",
+      "price": 12.99,
+      "quantity": 3
+    }
+  ]
 }
 
 ### DELETE ORDER
 
-DELETE {{apiUrl}}/orders/65e47c59a7b0d620192c0efd
+DELETE {{apiUrl}}/orders/65eb45ed18377d3ba6f604b0
 Authorization: Bearer {{token}}
 
 ###
