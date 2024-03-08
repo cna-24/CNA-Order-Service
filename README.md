@@ -1,6 +1,10 @@
 # CNA-Order-Service
 Order Service API
 https://cna-order-service.azurewebsites.net/
+
+
+Swagger
+https://cna-order-service.azurewebsites.net/api-docs
 # Installation
 
 Instructions for setting up the project locally:
