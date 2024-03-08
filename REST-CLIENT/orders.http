@@ -12,6 +12,11 @@ GET {{apiUrl}}/orders/myorders
 Authorization: Bearer {{token}}
 
 
+### product-service-test
+POST http://localhost:3030/orders/product-service-test
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
 
 ###
 GET http://localhost:3030/orders/myorders

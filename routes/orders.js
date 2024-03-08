@@ -32,22 +32,22 @@ async function createOrder(userId, product, quantity, price) {
 //Simple Function to generate a random order number for when creating a new order
 function generateOrderNumber() {
   // Take the last 6 digits of the current timestamp
-  const timestamp = Date.now().toString().slice(-6); 
+  const timestamp = Date.now().toString().slice(-6);
   // Generate a random string of length 6
-  const random = Math.random().toString(36).substr(2, 6); 
+  const random = Math.random().toString(36).substr(2, 6);
   // Combine timestamp and random components to create the order number
   const orderNumber = `${timestamp}${random}`;
   return orderNumber;
 }
 
 // Function to retrieve cart data from the cart service
-const getCartData = async () => {
+const getCartData = async (userToken) => {
   const cartServiceURL = `https://cartserviceem.azurewebsites.net/cart`;
 
   try {
     const result = await axios.get(cartServiceURL, {
       headers: {
-        Authorization: `Bearer {{token}}`, // Add user JWT
+        Authorization: `Bearer ${userToken}`, // Add user JWT
       },
     });
 
@@ -59,13 +59,13 @@ const getCartData = async () => {
 };
 
 // Function to retrieve product details from the product service
-const getProductDetails = async (productId) => {
+const getProductDetails = async (userToken, productId) => {
   const productServiceURL = `https://cna-product-service.azurewebsites.net/products/${productId}`;
 
   try {
     const productResponse = await axios.get(productServiceURL, {
       headers: {
-        Authorization: `Bearer {{token}}`,
+        Authorization: `Bearer ${userToken}`,
       },
     });
     return productResponse.data;
@@ -76,12 +76,12 @@ const getProductDetails = async (productId) => {
 };
 
 // Function to update product quantity in the product service
-const updateProductQuantity = async (productId, cartQuantity) => {
+const updateProductQuantity = async (userToken, productId, cartQuantity) => {
   const productServiceURL = `https://cna-product-service.azurewebsites.net/products/${productId}`;
 
   try {
     // Make a GET request to retrieve current product details
-    const currentProductDetails = await getProductDetails(productId);
+    const currentProductDetails = await getProductDetails(userToken, productId);
     const currentQuantity = currentProductDetails.quantity;
 
     // Subtract cartQuantity from currentQuantity
@@ -92,7 +92,7 @@ const updateProductQuantity = async (productId, cartQuantity) => {
       quantity: updatedQuantity,
     }, {
       headers: {
-        Authorization: `Bearer {{token}}`,
+        Authorization: `Bearer ${userToken}`,
       },
     });
 
@@ -106,13 +106,13 @@ const updateProductQuantity = async (productId, cartQuantity) => {
 
 // TEST-CODE-STARTS
 // Function to retrieve product details from the product service
-const getProductDetailsTest = async (productId) => {
+const getProductDetailsTest = async (userToken, productId) => {
   const productServiceURL = `https://cna-product-service.azurewebsites.net/products/${productId}`;
 
   try {
     const productResponse = await axios.get(productServiceURL, {
       headers: {
-        Authorization: `Bearer {{token}}`,
+        Authorization: `Bearer ${userToken}`,
       },
     });
     return productResponse.data;
@@ -123,15 +123,15 @@ const getProductDetailsTest = async (productId) => {
 };
 
 // Function to update product quantity in the product service
-const updateProductQuantityTest = async () => {
-
+const updateProductQuantityTest = async (userToken) => {
+  
   const productId = "CAM-002";
   const cartQuantity = 1;
   const productServiceURL = `https://cna-product-service.azurewebsites.net/products/${productId}`;
 
   try {
     // Make a GET request to retrieve current product details
-    const currentProductDetails = await getProductDetailsTest(productId);
+    const currentProductDetails = await getProductDetailsTest(userToken, productId);
     const currentQuantity = currentProductDetails.quantity;
 
     // Subtract cartQuantity from currentQuantity
@@ -142,7 +142,7 @@ const updateProductQuantityTest = async () => {
       quantity: updatedQuantity,
     }, {
       headers: {
-        Authorization: `Bearer {{token}}`,
+        Authorization: `Bearer ${userToken}`,
       },
     });
 
@@ -155,12 +155,11 @@ const updateProductQuantityTest = async () => {
 
 
 router.post('/product-service-test', authenticateToken, async (req, res) => {
-  try {
-   
-   
-    // Update product quantity using the updateProductQuantityTest function
-    await updateProductQuantityTest();
+  const userToken = req.authUser.token;
 
+  try {
+    // Update product quantity using the updateProductQuantityTest function
+    await updateProductQuantityTest(userToken);
    
   } catch (error) {
     console.error(error);
@@ -177,7 +176,7 @@ router.get('/myorders', authenticateToken, async (req, res) => {
     // Accessing the user ID from req.authUser
     const userId = req.authUser.id;
     const userName = req.authUser.username;
-    
+
     const userOrders = await prisma.orders.findMany({
       where: {
         user_id: userId,
@@ -272,7 +271,7 @@ router.patch('/:orderId', authenticateToken, async (req, res) => {
           product: product.product,
           price: product.price,
           quantity: product.quantity,
-          order_id: orderId 
+          order_id: orderId
         },
         update: {
           product: product.product,
@@ -306,8 +305,8 @@ router.delete('/:orderId', authenticateToken, async (req, res) => {
     const order = await prisma.orders.findUnique({
       where: {
         id: orderId,
-        user_id:userId,
-        username:userName
+        user_id: userId,
+        username: userName
       },
     });
 
@@ -315,25 +314,25 @@ router.delete('/:orderId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Order not found.' });
     }
 
-  // Delete associated rows first
-  await prisma.rows.deleteMany({
-    where: {
-      order_id: orderId,
-    },
-  });
+    // Delete associated rows first
+    await prisma.rows.deleteMany({
+      where: {
+        order_id: orderId,
+      },
+    });
 
-  // Delete the order
-  await prisma.orders.delete({
-    where: {
-      id: orderId,
-    },
-  });
+    // Delete the order
+    await prisma.orders.delete({
+      where: {
+        id: orderId,
+      },
+    });
 
-  res.status(200).json({ message: 'Order successfully deleted.' });
-} catch (error) {
-  console.error(error);
-  res.status(500).json({ error: 'Internal server error.' });
-}
+    res.status(200).json({ message: 'Order successfully deleted.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
 });
 
 
@@ -362,13 +361,16 @@ router.get('/myorders/:id', authenticateToken, async (req, res) => {
 });
 
 // New route to process an order, update product quantity, and send an email with userId only
-router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
-  const userId = req.authuser.id;
+router.post('/process-order', authenticateToken, async (req, res) => {
+  const userToken = req.authUser.token;
   const emailServiceURL = 'http://your-email-service-url/send_email'; // Replace with the actual email API endpoint
 
   try {
     // Retrieve cart data using the getCartData function
-    const cartData = await getCartData();
+    const cartData = await getCartData(userToken);
+
+    // Allting härifrån neråt behöver ännu testas/ändras
+    
     const userId = cartData.id; // Assuming getCartData includes userId in its response
 
     // Update product quantities in the product-service
@@ -388,7 +390,7 @@ router.post('/process-order/:cartId', authenticateToken, async (req, res) => {
     };
 
     // Send the data to the Email API with JWT for authentication
-    const emailApiToken = jwt.sign({  service: 'OrderProcessingService'}, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const emailApiToken = jwt.sign({ service: 'OrderProcessingService' }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     const emailResponse = await axios.post(emailServiceURL, emailData, {
       headers: {
