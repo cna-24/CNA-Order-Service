@@ -104,6 +104,72 @@ const updateProductQuantity = async (productId, cartQuantity) => {
 };
 
 
+// TEST-CODE-STARTS
+// Function to retrieve product details from the product service
+const getProductDetailsTest = async (productId) => {
+  const productServiceURL = `https://cna-product-service.azurewebsites.net/products/${productId}`;
+
+  try {
+    const productResponse = await axios.get(productServiceURL, {
+      headers: {
+        Authorization: `Bearer ${process.env.TOKEN}`,
+      },
+    });
+    return productResponse.data;
+  } catch (error) {
+    console.error(`Failed to retrieve product details for ID ${productId}:`, error);
+    throw new Error(`Failed to retrieve product details for ID ${productId}`);
+  }
+};
+
+// Function to update product quantity in the product service
+const updateProductQuantityTest = async () => {
+
+  const productId = "CAM-002";
+  const cartQuantity = 2;
+  const productServiceURL = `https://cna-product-service.azurewebsites.net/products/${productId}`;
+
+  try {
+    // Make a GET request to retrieve current product details
+    const currentProductDetails = await getProductDetailsTest(productId);
+    const currentQuantity = currentProductDetails.quantity;
+
+    // Subtract cartQuantity from currentQuantity
+    const updatedQuantity = currentQuantity - cartQuantity;
+
+    // Make a PATCH request to update product quantity
+    await axios.patch(productServiceURL, {
+      quantity: updatedQuantity,
+    }, {
+      headers: {
+        Authorization: `Bearer ${process.env.TOKEN}`,
+      },
+    });
+
+    console.log(`Product with ID ${productId} quantity updated from ${currentQuantity} to ${updatedQuantity}`);
+  } catch (error) {
+    console.error(`Failed to update product with ID ${productId} quantity:`, error);
+    throw new Error(`Failed to update product with ID ${productId} quantity`);
+  }
+};
+
+
+router.post('/product-service-test', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.authUser.userId;
+
+    // Update product quantity using the updateProductQuantityTest function
+    await updateProductQuantityTest();
+
+    res.status(201).json(newOrder);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// TEST-CODE-ENDS
+
 /* TOKEN GENERATOR FOR TESTING USER ID
 http://localhost:3030/orders/generate-token to get ur token which you add to HTTP auth bearer
 */

@@ -31,6 +31,12 @@ Content-Type: application/json
   "price": 22
 }
 
+###
+POST http://localhost:3030/orders/product-service-test
+
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
 
 ### PATCH ORDER
 
