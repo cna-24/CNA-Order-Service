@@ -412,7 +412,7 @@ router.post('/process-order', authenticateToken, async (req, res) => {
     // Retrieve cart data using the getCartData function
     const cartData = await getCartData(userToken);
 
-    // Allting härifrån neråt behöver ännu testas/ändras
+    // Everything below this comment needs to be changed/updated
 
     const userId = cartData.id; // Assuming getCartData includes userId in its response
 
@@ -467,6 +467,46 @@ router.post('/process-order', authenticateToken, async (req, res) => {
   }
 });
 
+/* Email route testing start */
+// Route to send order confirmation email with hardcoded userId
+router.post('/send-order-confirmation-email', authenticateToken, async (req, res) => {
+  const emailServiceURL = 'https://cna-2024-email-api.azurewebsites.net/process-order'; // Replace with the actual email API endpoint
+
+  try {
+    // Hardcoded data for demonstration purposes
+    const userId = 'hardcodedUserId'; // Use an actual userId for real scenarios
+    const cartId = 'hardcodedCartId'; // Use an actual cartId for real scenarios
+    const cartData = ['camels1', 'camels2' ]; // Placeholder for cart data array
+
+    // Prepare the email data, sending userId only
+    const emailData = {
+      id: userId,
+      subject: 'Your Order Details',
+      body: `Your order with ID ${cartId} has been processed. Details: ${JSON.stringify(cartData)}`,
+    };
+
+    // Generate JWT for Email API authentication
+    const emailApiToken = jwt.sign({ service: 'OrderConfirmationEmailService' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    // Send the email
+    const emailResponse = await axios.post(emailServiceURL, emailData, {
+      headers: {
+        Authorization: `Bearer ${emailApiToken}`,
+      },
+    });
+
+    // Success response
+    res.status(200).json({
+      message: 'Order confirmation email sent successfully with userId',
+      emailServiceResponse: emailResponse.data,
+    });
+  } catch (error) {
+    console.error('Failed to send order confirmation email with userId:', error);
+    res.status(500).json({ error: 'Failed to send order confirmation email with userId' });
+  }
+});
+
+/* Email route testing end */
 
 /**
  * @swagger
