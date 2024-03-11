@@ -365,6 +365,8 @@ router.post('/process-order', authenticateToken, async (req, res) => {
     // Create order
     const newOrder = await createOrder(userId, userName, address, cartData);
 
+    await postEmail(userToken, newOrder);
+
     // Delete cart data using the deleteCartData function
     await deleteCartData(userToken);
 
@@ -423,7 +425,25 @@ router.post('/send-order-confirmation-email', authenticateToken, async (req, res
 
 /* Email route testing end */
 
+// TEST
+const postEmail = async (userToken, orderData) => {
+  const emailServiceURL = `https://cna-2024-email-api.azurewebsites.net/process-order/`;
 
+
+  try {
+    const emailResponse = await axios.post(emailServiceURL, {
+      order: orderData
+    }, {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+    return emailResponse.data;
+  } catch (error) {
+    console.error(`Failed to send email`, error);
+    throw new Error(`Failed to send email`);
+  }
+};
 
 
 
