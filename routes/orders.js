@@ -8,36 +8,34 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 require('dotenv').config()
 
-async function createOrder(userId, product, quantity, price) {
+// Function to create a new order in the system.
+// Called in the process-order route below.
+async function createOrder(userId, userName, address, cartData) {
   try {
-    const GeneratedorderNumber = generateOrderNumber();
-    // Create a new order
     const newOrder = await prisma.orders.create({
       data: {
-        orderNumber: GeneratedorderNumber,
-        id: userId,
-        product: product,
-        quantity: quantity,
-        price: price,
+        user_id: userId,
+        username: userName,
+        address: address,
+        rows: {
+          createMany: {
+            data: cartData.map(cartItem => ({
+              product: cartItem.product_id, 
+              price: cartItem.price,
+              quantity: cartItem.quantity
+            }))
+          }
+        }
       },
+      include: {
+        rows: true
+      }
     });
-
     return newOrder;
   } catch (error) {
     console.error(error);
     throw new Error('Failed to create an order');
   }
-}
-
-//Simple Function to generate a random order number for when creating a new order
-function generateOrderNumber() {
-  // Take the last 6 digits of the current timestamp
-  const timestamp = Date.now().toString().slice(-6);
-  // Generate a random string of length 6
-  const random = Math.random().toString(36).substr(2, 6);
-  // Combine timestamp and random components to create the order number
-  const orderNumber = `${timestamp}${random}`;
-  return orderNumber;
 }
 
 // Function to delete cart data in the cart service
@@ -60,16 +58,16 @@ const deleteCartData = async (userToken) => {
 
 // Function to retrieve cart data from the cart service
 const getCartData = async (userToken) => {
-  const cartServiceURL = `https://cartserviceem.azurewebsites.net/cart`;
+  const cartServiceURL = 'https://cartserviceem.azurewebsites.net/cart';
 
   try {
-    const result = await axios.get(cartServiceURL, {
+    const response = await axios.get(cartServiceURL, {
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
     });
 
-    return result.data;
+    return response.data;
   } catch (error) {
     console.error('Failed to retrieve cart data:', error);
     throw new Error('Failed to retrieve cart data');
@@ -121,74 +119,7 @@ const updateProductQuantity = async (userToken, productId, cartQuantity) => {
   }
 };
 
-
-// TEST-CODE-STARTS
-// Function to retrieve product details from the product service
-const getProductDetailsTest = async (userToken, productId) => {
-  const productServiceURL = `https://cna-product-service.azurewebsites.net/products/${productId}`;
-
-  try {
-    const productResponse = await axios.get(productServiceURL, {
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-      },
-    });
-    return productResponse.data;
-  } catch (error) {
-    console.error(`Failed to retrieve product details for ID ${productId}:`, error);
-    throw new Error(`Failed to retrieve product details for ID ${productId}`);
-  }
-};
-
-// Function to update product quantity in the product service
-const updateProductQuantityTest = async (userToken) => {
-  
-  const productId = "CAM-002";
-  const cartQuantity = 1;
-  const productServiceURL = `https://cna-product-service.azurewebsites.net/products/${productId}`;
-
-  try {
-    // Make a GET request to retrieve current product details
-    const currentProductDetails = await getProductDetailsTest(userToken, productId);
-    const currentQuantity = currentProductDetails.quantity;
-
-    // Subtract cartQuantity from currentQuantity
-    const updatedQuantity = currentQuantity - cartQuantity;
-
-    // Make a PATCH request to update product quantity
-    await axios.patch(productServiceURL, {
-      quantity: updatedQuantity,
-    }, {
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-      },
-    });
-
-    console.log(`Product with ID ${productId} quantity updated from ${currentQuantity} to ${updatedQuantity}`);
-  } catch (error) {
-    console.error(`Failed to update product with ID ${productId} quantity:`, error);
-    throw new Error(`Failed to update product with ID ${productId} quantity`);
-  }
-};
-
-
-router.post('/product-service-test', authenticateToken, async (req, res) => {
-  const userToken = req.authUser.token;
-
-  try {
-    // Update product quantity using the updateProductQuantityTest function
-    await updateProductQuantityTest(userToken);
-   
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// TEST-CODE-ENDS
-
-
-// Route for User front-end. Get 
+// Route for User front-end. Get your orders.
 router.get('/myorders', authenticateToken, async (req, res) => {
   try {
     // Accessing the user ID from req.authUser
@@ -216,7 +147,7 @@ router.get('/myorders', authenticateToken, async (req, res) => {
   }
 });
 
-
+//Route for POST testing, use the Process-order route for posting orders instead!
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { products, address } = req.body;
@@ -258,8 +189,6 @@ router.post('/', authenticateToken, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-
 
 // ID av order får man från get request ovan, kanske måste implementera get by id.
 router.patch('/:orderId', authenticateToken, async (req, res) => {
@@ -328,7 +257,7 @@ router.patch('/:orderId', authenticateToken, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
+// Delete your specific order and it's rows belonging to that order.
 router.delete('/:orderId', authenticateToken, async (req, res) => {
   try {
     const orderId = req.params.orderId;
@@ -373,7 +302,7 @@ router.delete('/:orderId', authenticateToken, async (req, res) => {
   }
 });
 
-
+//GET your specifik order based on order Id
 router.get('/myorders/:orderId', authenticateToken, async (req, res) => {
   try {
     // Accessing the user ID from req.authUser
@@ -404,68 +333,54 @@ router.get('/myorders/:orderId', authenticateToken, async (req, res) => {
 });
 
 // New route to process an order, update product quantity, and send an email with userId only
+// Currently missing EMAIL sending code.
 router.post('/process-order', authenticateToken, async (req, res) => {
   const userToken = req.authUser.token;
-  const emailServiceURL = 'http://your-email-service-url/send_email'; // Replace with the actual email API endpoint
 
   try {
+    const { id: userId } = req.authUser;
+    const { address } = req.body;
+    const userName = req.authUser.username;
+
     // Retrieve cart data using the getCartData function
     const cartData = await getCartData(userToken);
 
-    // Everything below this comment needs to be changed/updated
-
-    const userId = cartData.id; // Assuming getCartData includes userId in its response
+    // Check if cartData is empty
+    if (!cartData || cartData.length === 0) {
+      return res.status(400).json({ error: 'No products found in the cart.' });
+    }
 
     // Update product quantities in the product-service
     for (const cartItem of cartData) {
-      const productId = cartItem.product; // Assuming product field is the productId
+      const productId = cartItem.product_id;
       const cartQuantity = cartItem.quantity;
 
       // Update product quantity using the updateProductQuantity function
-      await updateProductQuantity(productId, cartQuantity);
+      await updateProductQuantity(userToken, productId, cartQuantity).catch(error => {
+        console.error(`Failed to update product with ID ${productId} quantity:`, error);
+        throw new Error(`Failed to update product with ID ${productId} quantity`);
+      });
     }
 
-    // Transform the cartData as needed to match the Email API's expected format, sending userId only
-    const emailData = {
-      id: userId, // Only include the userId in the email data
-      subject: 'Your Order Details',
-      body: `Your order with ID ${cartId} has been processed. Details: ${JSON.stringify(cartData)}`,
-    };
-
-    // Send the data to the Email API with JWT for authentication
-    const emailApiToken = jwt.sign({ service: 'OrderProcessingService' }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    const emailResponse = await axios.post(emailServiceURL, emailData, {
-      headers: {
-        Authorization: `Bearer ${emailApiToken}`,
-      },
-    });
-
-    // Save the order to our database
-    const orderDetails = cartData.items.map(item => ({
-      product: item.productId,
-      quantity: item.quantity,
-      price: item.price // Adjust based on your data structure
-    }));
-
-
-    for (const detail of orderDetails) {
-      await createOrder(userId, detail.product, detail.quantity, detail.price);
-    }
+    // Create order
+    const newOrder = await createOrder(userId, userName, address, cartData);
 
     // Delete cart data using the deleteCartData function
     await deleteCartData(userToken);
 
     // Success response
     res.status(200).json({
-      message: 'Order processed, product quantities updated, and email data sent successfully with userId',
-      emailServiceResponse: emailResponse.data,
+      message: 'Order processed, product quantities updated, and cart data retrieved successfully',
+      orderDetails: newOrder
     });
   } catch (error) {
-    console.error('Failed to process order, update product quantities, and send email data with userId:', error);
-    res.status(500).json({ error: 'Failed to process order, update product quantities, and send email data with userId' });
+    console.error('Failed to process order and update product quantities:', error);
+    res.status(500).json({ error: 'Failed to process order and update product quantities' });
   }
 });
+
+
+//Not myllymajs code below:
 
 /* Email route testing start */
 // Route to send order confirmation email with hardcoded userId
@@ -507,6 +422,10 @@ router.post('/send-order-confirmation-email', authenticateToken, async (req, res
 });
 
 /* Email route testing end */
+
+
+
+
 
 /**
  * @swagger

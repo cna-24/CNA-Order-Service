@@ -2,15 +2,14 @@
 
 @token = {{$dotenv TOKEN}}
 ### GET ALL
-GET {{apiUrl}}/orders/
+GET https://cna-product-service.azurewebsites.net/products
 ### GET BY ID
-GET {{apiUrl}}/orders/myorders/65ce1fd30b994ec7411b68d5
+GET {{apiUrl}}/orders/myorders/65eb6c85bc017cd7bfdbe6c3
 Authorization: Bearer {{token}}
 
 ### GET ORDERS FOR LOGGED-IN USER
-GET {{apiUrl}}/orders/myorders
+GET https://cartserviceem.azurewebsites.net/cart
 Authorization: Bearer {{token}}
-
 
 ### product-service-test
 POST http://localhost:3030/orders/product-service-test
@@ -19,58 +18,65 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:3030/orders/myorders
+GET https://cartserviceem.azurewebsites.net/cart
 Authorization: Bearer {{token}}
 ###
-POST http://localhost:3030/orders
+POST {{apiUrl}}/orders/send-order-confirmation-email
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 
 ###
-POST http://localhost:3030/orders
+POST https://cartserviceem.azurewebsites.net/cart
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "products": [
-    {
-      "product": "Product test",
-      "price": 10.99,
-      "quantity": 2
-    },
-    {
-      "product": "Product 2test",
-      "price": 19.99,
-      "quantity": 1
-    }
-  ],
-  "address": "123 test St"
+  "user_id": "string",
+  "product": "CAM-002",
+  "quantity": 1,
+  "price": 40
 }
 
 
 
 ### PATCH ORDER
 
-PATCH http://localhost:3030/orders/65eb45ed18377d3ba6f604b0
+PATCH http://localhost:3030/orders/65eb6a4c02aa42bcd5b5986c
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "address": "New address for the order",
+  "address": "My home address",
   "products": [
     {
-      "id": "65eb45ed18377d3ba6f604b1",
-      "product": "test Product test",
-      "price": 12.99,
-      "quantity": 3
+      "id": "65eb6a4c02aa42bcd5b5986d",
+      "product": "tee",
+      "price": 20000,
+      "quantity": 20000
+    },
+    {
+      "id": "65eb6a4c02aa42bcd5b5986e",
+      "product": "hee products",
+      "price": 20000,
+      "quantity": 20000
     }
   ]
 }
 
 ### DELETE ORDER
 
-DELETE {{apiUrl}}/orders/65eb45ed18377d3ba6f604b0
+DELETE https://cartserviceem.azurewebsites.net/cart
 Authorization: Bearer {{token}}
 
 ###
+
+###
+
+POST {{apiUrl}}/orders/process-order
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "address": "123 Sesame Street"
+}

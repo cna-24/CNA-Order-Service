@@ -16,7 +16,7 @@ module.exports = (req, res, next) => {
         const authUser = jwt.verify(token, process.env.JWT_SECRET);
         req.authUser = authUser;
         req.authUser.token = token;
-        console.log(authUser)
+        //console.log(authUser)
         next();
 
     } catch (error) {
