@@ -429,7 +429,12 @@ router.post('/send-order-confirmation-email', authenticateToken, async (req, res
 // TEST
 const postEmail = async (userToken, orderData) => {
   const emailServiceURL = `https://cna-email-service.azurewebsites.net/process-order`;
-console.log(orderData)
+<<<<<<< HEAD
+
+=======
+
+
+>>>>>>> 45692bab49b64026928b3b166cc541cbcf92746a
   try {
     const emailResponse = await axios.post(emailServiceURL, {
       orderData: orderData // Corrected the key to match the server-side expectation
@@ -441,9 +446,9 @@ console.log(orderData)
     console.log(emailResponse);
     return emailResponse; // Returning the response data
   } catch (error) {
-    console.error(`Failed to send email`, error);
-    throw new Error(`Failed to send email`);
-  }
+    console.error('Failed to send email:', error);
+    return { success: false, message: 'Failed to send confirmation email' };
+  }  
 };
 
 
