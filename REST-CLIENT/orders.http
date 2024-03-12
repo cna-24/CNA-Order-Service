@@ -16,6 +16,23 @@ POST http://localhost:3030/orders/product-service-test
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
+###
+POST https://cna-user-api.duckdns.org/register
+
+Content-Type: application/json
+
+
+
+{
+
+    "username": "{{token}}",
+
+    "password": "{{token}}"
+
+} 
+
+
+###
 
 ###
 GET https://cartserviceem.azurewebsites.net/cart
@@ -33,9 +50,10 @@ Content-Type: application/json
 
 {
   "user_id": "string",
-  "product": "CAM-002",
-  "quantity": 1,
-  "price": 40
+  "product": "CAM-004",
+  "quantity": 3,
+  "price": 50
+    
 }
 
 
@@ -70,6 +88,24 @@ DELETE https://cartserviceem.azurewebsites.net/cart
 Authorization: Bearer {{token}}
 
 ###
+POST https://cna-email-service.azurewebsites.net/process-order
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "orderData": {
+    "products": [
+      {
+        "name": "Product 1",
+        "quantity": 2
+      },
+      {
+        "name": "Product 2",
+        "quantity": 1
+      }
+    ]
+  }
+}
 
 ###
 

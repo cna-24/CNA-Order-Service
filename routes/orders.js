@@ -365,7 +365,7 @@ router.post('/process-order', authenticateToken, async (req, res) => {
     // Create order
     const newOrder = await createOrder(userId, userName, address, cartData);
 
-    await postEmail(userToken, newOrder);
+    const emailResponse = await postEmail(userToken, newOrder);
 
     // Delete cart data using the deleteCartData function
     await deleteCartData(userToken);
@@ -373,7 +373,8 @@ router.post('/process-order', authenticateToken, async (req, res) => {
     // Success response
     res.status(200).json({
       message: 'Order processed, product quantities updated, and cart data retrieved successfully',
-      orderDetails: newOrder
+      orderDetails: newOrder,
+      emailResponse: emailResponse.data
     });
   } catch (error) {
     console.error('Failed to process order and update product quantities:', error);
@@ -387,7 +388,7 @@ router.post('/process-order', authenticateToken, async (req, res) => {
 /* Email route testing start */
 // Route to send order confirmation email with hardcoded userId
 router.post('/send-order-confirmation-email', authenticateToken, async (req, res) => {
-  const emailServiceURL = 'https://cna-2024-email-api.azurewebsites.net/process-order'; // Replace with the actual email API endpoint
+  const emailServiceURL = 'https://cna-email-service.azurewebsites.net/process-order'; // Replace with the actual email API endpoint
 
   try {
     // Hardcoded data for demonstration purposes
@@ -427,18 +428,18 @@ router.post('/send-order-confirmation-email', authenticateToken, async (req, res
 
 // TEST
 const postEmail = async (userToken, orderData) => {
-  const emailServiceURL = `https://cna-2024-email-api.azurewebsites.net/process-order/`;
-
-
+  const emailServiceURL = `https://cna-email-service.azurewebsites.net/process-order`;
+console.log(orderData)
   try {
     const emailResponse = await axios.post(emailServiceURL, {
-      order: orderData
+      orderData: orderData // Corrected the key to match the server-side expectation
     }, {
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
     });
-    return emailResponse.data;
+    console.log(emailResponse);
+    return emailResponse; // Returning the response data
   } catch (error) {
     console.error(`Failed to send email`, error);
     throw new Error(`Failed to send email`);
