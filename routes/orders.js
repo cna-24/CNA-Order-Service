@@ -449,6 +449,9 @@ const postEmail = async (userToken, orderData) => {
     console.error('Failed to send email:', error);
     return { success: false, message: 'Failed to send confirmation email' };
   }  
+    console.error('Failed to send email:', error);
+    return { success: false, message: 'Failed to send confirmation email' };
+  }  
 };
 
 
