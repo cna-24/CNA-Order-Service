@@ -613,5 +613,53 @@ const postEmail = async (userToken, orderData) => {
  *       - bearerAuth: []
  */
 
+/**
+ * @swagger
+ * /orders/process-order:
+ *   post:
+ *     summary: Processes an order from the cart.
+ *     description: Authenticates the user, retrieves cart data, updates product quantities, creates an order, sends an email confirmation, and deletes the cart data.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               address:
+ *                 type: string
+ *                 description: Shipping address for the order.
+ *             required:
+ *               - address
+ *     responses:
+ *       200:
+ *         description: Order processed successfully. Product quantities updated, cart data deleted, and email sent.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Order processed, product quantities updated, and cart data retrieved successfully
+ *                 orderDetails:
+ *                   $ref: '#/components/schemas/Order'
+ *                 emailResponse:
+ *                   type: object
+ *                   properties:
+ *                     success:
+ *                       type: boolean
+ *                       example: true
+ *                     message:
+ *                       type: string
+ *                       example: Email sent successfully
+ *       400:
+ *         description: Bad request, e.g., no products found in the cart.
+ *       500:
+ *         description: Server error, e.g., failed to process order and update product quantities.
+ *     security:
+ *       - bearerAuth: []
+ */
+
 
 module.exports = router;
