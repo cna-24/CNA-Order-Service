@@ -8,7 +8,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 require('dotenv').config()
 
-/* FUNCTIONS */
+// FUNCTIONS
 
 // Function to create a new order in the system.
 // Called in the "process-order" route below.
@@ -152,7 +152,7 @@ const postEmail = async (userToken, orderData) => {
   }  
 };
 
-/* ROUTES */
+// ROUTES
 
 // Route to process an order, update product quantity, and send confirmation email
 // For use in frontend when making a purchase.
@@ -377,7 +377,7 @@ router.delete('/:orderId', authenticateToken, async (req, res) => {
   }
 });
 
-/* TESTING ROUTES */
+// TESTING ROUTES
 
 // Route for TESTING POST, use the "process-order" route for posting orders instead!
 router.post('/', authenticateToken, async (req, res) => {
@@ -473,25 +473,25 @@ router.post('/', authenticateToken, async (req, res) => {
 /**
  * @swagger
  * /orders/{orderId}:
- *   delete:
- *     summary: Deletes a specific order.
- *     description: Allows for the deletion of an order by its ID. Only accessible by the user who created the order.
+ *   get:
+ *     summary: Retrieve a single order by ID.
+ *     description: Fetches details of a specific order by its ID.
  *     parameters:
  *       - in: path
  *         name: orderId
  *         required: true
  *         schema:
  *           type: string
- *         description: The ID of the order to delete.
+ *         description: The ID of the order to retrieve.
  *     responses:
  *       200:
- *         description: Order deleted successfully.
- *       403:
- *         description: Unauthorized to delete this order.
+ *         description: Detailed information about the order.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Order'
  *       404:
  *         description: Order not found.
- *     security:
- *       - bearerAuth: []
  */
 
 /**
@@ -535,6 +535,30 @@ router.post('/', authenticateToken, async (req, res) => {
  *         description: Order not found.
  *       500:
  *         description: Failed to update the order.
+ *     security:
+ *       - bearerAuth: []
+ */
+
+/**
+ * @swagger
+ * /orders/{orderId}:
+ *   delete:
+ *     summary: Deletes a specific order.
+ *     description: Allows for the deletion of an order by its ID. Only accessible by the user who created the order.
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the order to delete.
+ *     responses:
+ *       200:
+ *         description: Order deleted successfully.
+ *       403:
+ *         description: Unauthorized to delete this order.
+ *       404:
+ *         description: Order not found.
  *     security:
  *       - bearerAuth: []
  */
@@ -619,30 +643,6 @@ router.post('/', authenticateToken, async (req, res) => {
  *        - product
  *        - quantity
  *        - price
- */
-
-/**
- * @swagger
- * /orders/{orderId}:
- *   get:
- *     summary: Retrieve a single order by ID.
- *     description: Fetches details of a specific order by its ID.
- *     parameters:
- *       - in: path
- *         name: orderId
- *         required: true
- *         schema:
- *           type: string
- *         description: The ID of the order to retrieve.
- *     responses:
- *       200:
- *         description: Detailed information about the order.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Order'
- *       404:
- *         description: Order not found.
  */
 
 
