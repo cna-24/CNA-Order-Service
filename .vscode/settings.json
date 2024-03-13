@@ -1,4 +1,8 @@
 {
     "appService.defaultWebAppToDeploy": "undefined/subscriptions/62d45a97-c71a-41dd-9df5-f9e7af1731a9/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/CNA-Order-Service",
-    "appService.deploySubpath": "."
+    "appService.deploySubpath": ".",
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ]
 }

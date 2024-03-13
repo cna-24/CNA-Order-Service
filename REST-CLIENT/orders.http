@@ -5,15 +5,15 @@
 GET https://cna-product-service.azurewebsites.net/products
 ### GET BY ID
 GET {{apiUrl}}/orders/myorders/65eb6c85bc017cd7bfdbe6c3
-Authorization: Bearer {{token}}
+Authorization: Bearer token
 
 ### GET ORDERS FOR LOGGED-IN USER
 GET https://cartserviceem.azurewebsites.net/cart
-Authorization: Bearer {{token}}
+Authorization: Bearer token
 
 ### product-service-test
 POST http://localhost:3030/orders/product-service-test
-Authorization: Bearer {{token}}
+Authorization: Bearer token
 Content-Type: application/json
 
 ###
@@ -25,9 +25,9 @@ Content-Type: application/json
 
 {
 
-    "username": "{{token}}",
+    "username": "token",
 
-    "password": "{{token}}"
+    "password": "token"
 
 } 
 
@@ -36,23 +36,23 @@ Content-Type: application/json
 
 ###
 GET https://cartserviceem.azurewebsites.net/cart
-Authorization: Bearer {{token}}
+Authorization: Bearer token
 ###
 POST {{apiUrl}}/orders/send-order-confirmation-email
-Authorization: Bearer {{token}}
+Authorization: Bearer token
 Content-Type: application/json
 
 
 ###
 POST https://cartserviceem.azurewebsites.net/cart
-Authorization: Bearer {{token}}
+Authorization: Bearer token
 Content-Type: application/json
 
 {
   "user_id": "string",
-  "product": "CAM-004",
-  "quantity": 3,
-  "price": 50
+  "product": "DRO-001",
+  "quantity": 1,
+  "price": 10
     
 }
 
@@ -61,7 +61,7 @@ Content-Type: application/json
 ### PATCH ORDER
 
 PATCH http://localhost:3030/orders/65eb6a4c02aa42bcd5b5986c
-Authorization: Bearer {{token}}
+Authorization: Bearer token
 Content-Type: application/json
 
 {
@@ -85,32 +85,35 @@ Content-Type: application/json
 ### DELETE ORDER
 
 DELETE https://cartserviceem.azurewebsites.net/cart
-Authorization: Bearer {{token}}
+Authorization: Bearer token
 
 ###
 POST https://cna-email-service.azurewebsites.net/process-order
-Authorization: Bearer {{token}}
+Authorization: Bearer token
 Content-Type: application/json
 
 {
   "orderData": {
-    "products": [
+    "rows": [
       {
-        "name": "Product 1",
+        "product": {
+          "name": "Product Name 1"
+        },
         "quantity": 2
       },
       {
-        "name": "Product 2",
+        "product": {
+          "name": "Product Name 2"
+        },
         "quantity": 1
       }
     ]
   }
 }
-
 ###
 
-POST {{apiUrl}}/orders/process-order
-Authorization: Bearer {{token}}
+POST https://cna-order-service.azurewebsites.net/orders/process-order
+Authorization: Bearer token
 Content-Type: application/json
 
 {

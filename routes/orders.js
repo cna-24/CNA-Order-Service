@@ -21,7 +21,7 @@ async function createOrder(userId, userName, address, cartData) {
           createMany: {
             data: cartData.map(cartItem => ({
               product: cartItem.product_id, 
-              price: cartItem.price,
+              price: parseFloat(cartItem.price),
               quantity: cartItem.quantity
             }))
           }
@@ -438,7 +438,7 @@ const postEmail = async (userToken, orderData) => {
         Authorization: `Bearer ${userToken}`,
       },
     });
-    console.log(emailResponse);
+    //console.log(emailResponse);
     return emailResponse; // Returning the response data
   } catch (error) {
     console.error('Failed to send email:', error);
