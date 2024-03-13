@@ -1,67 +1,75 @@
 @apiUrl = http://localhost:3030   
 
 @token = {{$dotenv TOKEN}}
-### GET ALL
-GET https://cna-product-service.azurewebsites.net/products
-### GET BY ID
-GET {{apiUrl}}/orders/myorders/65eb6c85bc017cd7bfdbe6c3
-Authorization: Bearer token
 
-### GET ORDERS FOR LOGGED-IN USER
-GET https://cartserviceem.azurewebsites.net/cart
-Authorization: Bearer token
 
-### product-service-test
-POST http://localhost:3030/orders/product-service-test
-Authorization: Bearer token
+
+### POST order using order service chain route
+POST {{apiUrl}}/orders/process-order
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
-###
+{
+  "address": "123 Sesame Street"
+}
+
+### Register new user for testing
 POST https://cna-user-api.duckdns.org/register
-
 Content-Type: application/json
-
-
 
 {
+  "username": "token",
+  "password": "token",
+  "email": "token"
+}
 
-    "username": "token",
-
-    "password": "token"
-
-} 
-
-
-###
-
-###
-GET https://cartserviceem.azurewebsites.net/cart
-Authorization: Bearer token
-###
-POST {{apiUrl}}/orders/send-order-confirmation-email
-Authorization: Bearer token
+### Login to retrieve jwt
+POST https://cna-user-api.duckdns.org/login
 Content-Type: application/json
 
+{
+  "username": "token",
+  "password": "token",
+  "email": "token"
+}
 
-###
+### POST to add cart data
 POST https://cartserviceem.azurewebsites.net/cart
-Authorization: Bearer token
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "user_id": "string",
-  "product": "DRO-001",
+  "product": "CAM-002",
   "quantity": 1,
-  "price": 10
-    
+  "price": 10   
 }
 
 
 
-### PATCH ORDER
+### GET all products from product service
+GET https://cna-product-service.azurewebsites.net/products
 
-PATCH http://localhost:3030/orders/65eb6a4c02aa42bcd5b5986c
-Authorization: Bearer token
+### GET cart data for user
+GET https://cartserviceem.azurewebsites.net/cart
+Authorization: Bearer {{token}}
+
+### DELETE cart data
+DELETE https://cartserviceem.azurewebsites.net/cart
+Authorization: Bearer {{token}}
+
+
+
+### GET all orders for the logged-in user
+GET {{apiUrl}}/orders/myorders
+Authorization: Bearer {{token}}
+
+### GET order by orderid
+GET {{apiUrl}}/orders/myorders/65eb6c85bc017cd7bfdbe6c3
+Authorization: Bearer {{token}}
+
+### PATCH order by orderid
+PATCH {{apiUrl}}/orders/65eb6a4c02aa42bcd5b5986c
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -82,16 +90,12 @@ Content-Type: application/json
   ]
 }
 
-### DELETE ORDER
 
-DELETE https://cartserviceem.azurewebsites.net/cart
-Authorization: Bearer token
 
-###
+### POST to email api
 POST https://cna-email-service.azurewebsites.net/process-order
-Authorization: Bearer token
+Authorization: Bearer {{token}}
 Content-Type: application/json
-
 {
   "orderData": {
     "rows": [
@@ -109,13 +113,4 @@ Content-Type: application/json
       }
     ]
   }
-}
-###
-
-POST https://cna-order-service.azurewebsites.net/orders/process-order
-Authorization: Bearer token
-Content-Type: application/json
-
-{
-  "address": "123 Sesame Street"
 }
