@@ -8,7 +8,7 @@ The base URL for accessing the CNA Order Service API is:
 
 https://cna-order-service.azurewebsites.net/
 
-## Swagger(not updated)
+## Swagger
 
 https://cna-order-service.azurewebsites.net/api-docs
 
